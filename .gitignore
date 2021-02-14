@@ -40,3 +40,6 @@ vignettes/*.pdf
 
 # data folder
 /data/
+
+# DS STore file on mac
+.DS_Store

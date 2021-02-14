@@ -1,26 +1,29 @@
-#
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+# Server
+# Keaton Wilson & Noah Giebink
+# keatonwilson@me.com
+# 2021-02-02
 
 library(shiny)
+
+
+# Sourcing Scripts --------------------------------------------------------
+source("./scripts/make_selection_map.R")
+source("./scripts/make_simulation_map.R")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
 
-    output$distPlot <- renderPlot({
 
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
+# Map Panel to Make Location Selection ------------------------------------
+output$selection_map = renderLeaflet({
+  make_selection_map()
+})
 
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
 
-    })
+# Map Panel to View Simulation --------------------------------------------
+
+output$simulation_map = renderLeaflet({
+  make_simulation_map()
+})
 
 })
