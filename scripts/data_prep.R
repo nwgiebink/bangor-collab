@@ -9,7 +9,7 @@ library(R.matlab)
 library(stringr)
 library(lubridate)
 
-# function convert_files() ----
+# function data_prep() ----
 #' Description
 #' convert directory of .mat files 
 #' 
@@ -23,13 +23,11 @@ library(lubridate)
 #' path: location of .mat files e.g. './data/spring_data/'
 #' spatial_res: spatial resolution, e.g. if spatial_res = 5, keep every fifth site
 #' temporal_res: temporal resolution, e.g. if temporal_res = 12, keep two positions per day
-
-
-
+#'
+#' Data
 #' Each simulation last for two month (i.e. particle are released during two month) 
 #' and results (i.e. particles position) are saved hourly 
 #' (so matrices of 6964 sites * 1441 positions) for both latitude and longitude 
-#' 
 #' (so for each simulation two matrices generated: one for lat and one for lon).
 
 
@@ -93,12 +91,6 @@ for (f in 1:num_pairs) {
   # e.g. if arg temporal_res = 12, keep two positions per day
   lat_lon_reduced <- lat_lon_reduced %>% filter(position == 1 | (position - 1) %% temporal_res == 0)
 
-  
-  ####TEST####
-  print(head(lat_lon_reduced))
-  print(tail(lat_lon_reduced))
-  ############
-
   # add to list of replicate dfs
   replicates[[f]] <- lat_lon_reduced
 
@@ -106,11 +98,8 @@ for (f in 1:num_pairs) {
   setTxtProgressBar(progress_bar, value = f)
   
 }
-
-
-# after exiting loop, rbind all dfs in replicates list
+# after exiting loop, bind all dfs in replicates list
 replicates_df <- bind_rows(replicates)
-
 
 close(progress_bar)
 return(replicates_df)
@@ -118,4 +107,4 @@ return(replicates_df)
 
 
 # run 
-march_01 <- data_prep('./data/dev/', 5, 12)
+march_01 <- data_prep('./data/spring_data/', 10, 12)
