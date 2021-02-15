@@ -41,7 +41,6 @@ progress_bar <- txtProgressBar(min = 0, max = length(file_names)/2, style = 3)
 
 num_pairs <- length(file_names)/2 # count file pairs
 replicates <- vector(mode='list', length=num_pairs) # init dfs list
-print(replicates)
 
 for (f in 1:num_pairs) {
   # find matching lat and lon file names and put them together
@@ -106,5 +105,8 @@ return(replicates_df)
 }
 
 
-# run 
-march_01 <- data_prep('./data/spring_data/', 10, 12)
+# # run 
+# march_01 <- data_prep('./data/spring_data/', 10, 12)
+# # save
+# write_csv2(march_01, './data/March_01_2014_surface.csv')
+
