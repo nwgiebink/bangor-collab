@@ -12,6 +12,7 @@ library(shinydashboard)
 library(shinydashboardPlus)
 library(shinythemes)
 library(shinyWidgets)
+library(leaflet)
 
 
 # Shiny UI ---------------------------------------------------------------
