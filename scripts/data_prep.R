@@ -17,7 +17,6 @@ library(lubridate)
 #' matrix shape n sites * m positions
 #' separate lat and lon files paired by naming scheme
 #' e.g. lat: "March_01_2014_surface_lat_01.mat" lon: "March_01_2014_surface_lon_01.mat"
-#' count lat files = count lon files.
 #' 
 #' Arguments
 #' path: location of .mat files e.g. './data/spring_data/'
@@ -25,7 +24,7 @@ library(lubridate)
 #' temporal_res: temporal resolution, e.g. if temporal_res = 12, keep two positions per day
 #'
 #' Data
-#' Each simulation last for two month (i.e. particle are released during two month) 
+#' Each simulation lasts for two months (i.e. particles are released during two months) 
 #' and results (i.e. particles position) are saved hourly 
 #' (so matrices of 6964 sites * 1441 positions) for both latitude and longitude 
 #' (so for each simulation two matrices generated: one for lat and one for lon).
@@ -47,9 +46,9 @@ replicates <- vector(mode='list', length = length(lats)) # init dfs list
 
 for (f in lats) {
   # find matching lat and lon file names and put them together
-  matches <- file_names[which(str_detect(file_names, word(f, 4, sep = '_')) & 
-                                str_detect(file_names, str_sub(f, -6, -1)))]
-  
+  matches <- file_names[which(str_detect(word(file_names, 2, sep = '_'), word(f, 2, sep = '_')) & # same date
+                                str_detect(file_names, word(f, 4, sep = '_')) & # same depth
+                                str_detect(file_names, str_sub(f, -6, -1)))] # same replicate
   match_dfs <- c(readMat(paste0(path,matches[1])), readMat(paste0(path,matches[2])))
 
   # change to data frame: rows = sites, columns = positions
@@ -111,7 +110,8 @@ return(replicates_df)
 }
 
 
-# # run 
-# march_01 <- data_prep('./data/spring_data/', 10, 12)
-# # save
-# write_csv2(march_01, './data/March_01_2014_surface.csv')
+# run 
+spring_data <- data_prep('../../../../../../media/noah/LittleStuff/bangor_spring_data/', 20, 12)
+# save
+write.csv(spring_data, 'data/spring_data.csv')
+
