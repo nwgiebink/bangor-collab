@@ -38,13 +38,18 @@ file_names <- dir(path, pattern = '.mat')
 
 # init progress bar
 progress_bar <- txtProgressBar(min = 0, max = length(file_names)/2, style = 3)
+progress = 0 # init progress bar value
 
-num_pairs <- length(file_names)/2 # count file pairs
-replicates <- vector(mode='list', length=num_pairs) # init dfs list
+# get all lat files to find corresponding lon matches
+lats <- file_names[which(str_detect(file_names, 'lat'))]
 
-for (f in 1:num_pairs) {
+replicates <- vector(mode='list', length = length(lats)) # init dfs list
+
+for (f in lats) {
   # find matching lat and lon file names and put them together
-  matches <- file_names[which(str_detect(file_names, str_sub(file_names[f], -6, -1)))]
+  matches <- file_names[which(str_detect(file_names, word(f, 4, sep = '_')) & 
+                                str_detect(file_names, str_sub(f, -6, -1)))]
+  
   match_dfs <- c(readMat(paste0(path,matches[1])), readMat(paste0(path,matches[2])))
 
   # change to data frame: rows = sites, columns = positions
@@ -94,8 +99,9 @@ for (f in 1:num_pairs) {
   replicates[[f]] <- lat_lon_reduced
 
   # update progress bar
-  setTxtProgressBar(progress_bar, value = f)
-  
+  progress <- progress + 1
+  setTxtProgressBar(progress_bar, value = progress)
+
 }
 # after exiting loop, bind all dfs in replicates list
 replicates_df <- bind_rows(replicates)
@@ -109,4 +115,3 @@ return(replicates_df)
 # march_01 <- data_prep('./data/spring_data/', 10, 12)
 # # save
 # write_csv2(march_01, './data/March_01_2014_surface.csv')
-
