@@ -110,12 +110,7 @@ return(replicates_df)
 # # save
 # write_csv2(march_01, './data/March_01_2014_surface.csv')
 
-# test_spring_surface = data_prep("/Volumes/LittleStuff/bangor_spring_surface/", 10, 12)
-# glimpse(test_spring_surface)
-# write_csv(test_spring_surface, "./data/spring_surface_downsampled.csv")
-# rm(test_spring_surface)
-# 
-# test_spring_mwd = data_prep("/Volumes/LittleStuff/bangor_spring_MWD/", 10, 12)
-# glimpse(test_spring_mwd)
-# write_csv(test_spring_mwd, "./data/spring_mwd_downsampled.csv")
-# rm(test_spring_mwd)
+
+spring_full = data_prep("/Volumes/bangor_collab/bangor_spring_data/", 20, 12)
+rm(spring_full)
+summer_full = data_prep("/Volumes/bangor_collab/bangor_summer_data/", 20, 12)

@@ -108,7 +108,7 @@ shinyUI(
                                                   status = "primary",
                                                   solidHeader = FALSE,
                                                   id = "location_box",
-                                                  leafletOutput("selection_map", height = 850)
+                                                  leafletOutput("selection_map", height = 700)
                                            )
                                            ), 
                                     column(width = 4,
