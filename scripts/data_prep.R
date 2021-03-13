@@ -73,17 +73,14 @@ for (f in lats) {
   lat_lon$replicate <- str_sub(matches[1], 1, -5)
 
   # create column: date
-
     # get date from file name string
   year <- word(matches[1], 3, sep = '_')
   month <- match(word(matches[1], sep = '_'), month.name)
   day <- word(matches[1], 2, sep = '_')
-
   date <- ymd(paste0(year, "-", month, "-", day))
 
   lat_lon$date <- date
   lat_lon <- lat_lon %>% mutate(date = date + hours(position - 1))
-
 
   # down sample
   # spatial  resolution:
@@ -107,11 +104,26 @@ replicates_df <- bind_rows(replicates)
 
 close(progress_bar)
 return(replicates_df)
+
 }
 
+# 
+# # run 
+# spring_data <- data_prep('../../../../../../media/noah/LittleStuff/bangor_spring_data/', 20, 12)
+# # save
+# write.csv(spring_data, 'data/spring_data.csv')
 
 # run 
-spring_data <- data_prep('../../../../../../media/noah/LittleStuff/bangor_spring_data/', 20, 12)
+summer_data <- data_prep('../../../../../../media/noah/LittleStuff/bangor_summer_data/', 20, 12)
 # save
-write.csv(spring_data, 'data/spring_data.csv')
+write.csv(summer_data, 'data/summer_data.csv')
 
+# run 
+summer_mwd <- data_prep('./data/dev/mwd/', 20, 12)
+# save
+write.csv(summer_mwd, 'data/summer_mwd.csv')
+
+# run 
+summer_surface <- data_prep('./data/dev/surface/', 20, 12)
+# save
+write.csv(summer_surface, 'data/summer_surface.csv')
