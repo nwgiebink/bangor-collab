@@ -73,17 +73,14 @@ for (f in lats) {
   lat_lon$replicate <- str_sub(matches[1], 1, -5)
 
   # create column: date
-
     # get date from file name string
   year <- word(matches[1], 3, sep = '_')
   month <- match(word(matches[1], sep = '_'), month.name)
   day <- word(matches[1], 2, sep = '_')
-
   date <- ymd(paste0(year, "-", month, "-", day))
 
   lat_lon$date <- date
   lat_lon <- lat_lon %>% mutate(date = date + hours(position - 1))
-
 
   # down sample
   # spatial  resolution:
@@ -107,21 +104,5 @@ replicates_df <- bind_rows(replicates)
 
 close(progress_bar)
 return(replicates_df)
+
 }
-
-
-# # run 
-# spring_data <- data_prep('../../../../../../media/noah/LittleStuff/bangor_spring_data/', 20, 12)
-# # save
-# write.csv(spring_data, 'data/spring_data.csv')
-
-# spring_data = data_prep("/Volumes/bangor_collab/bangor_spring_data/", 20, 12)
-# write_csv(spring_data, "./data/spring_data_downsampled.csv")
-# rm(spring_data)
-
-# summer_mwd_data = data_prep("~/Desktop/bangor_summer_mwd//", 10, 12)
-# write_csv(summer_mwd_data, "./data/summer_mwd_data_downsampled.csv")
-# rm(summer_mwd_data)
-
-# autumn_data = data_prep("/Volumes/MB Pro Backup/bangor_autumn_data/", 10, 12)
-# write_csv(autumn_data, "./data/autumn_data_downsampled.csv")
