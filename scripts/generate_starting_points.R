@@ -8,7 +8,7 @@ library(tidyverse)
 
 
 # Reading in Data ---------------------------------------------------------
-spring = read_csv("./data/spring_full.csv")
+spring = read_csv("./data/autumn_data_downsampled.csv")
 
 
 # Wrangling ---------------------------------------------------------------
