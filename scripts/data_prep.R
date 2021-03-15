@@ -110,8 +110,18 @@ return(replicates_df)
 }
 
 
-# run 
-spring_data <- data_prep('../../../../../../media/noah/LittleStuff/bangor_spring_data/', 20, 12)
-# save
-write.csv(spring_data, 'data/spring_data.csv')
+# # run 
+# spring_data <- data_prep('../../../../../../media/noah/LittleStuff/bangor_spring_data/', 20, 12)
+# # save
+# write.csv(spring_data, 'data/spring_data.csv')
 
+# spring_data = data_prep("/Volumes/bangor_collab/bangor_spring_data/", 20, 12)
+# write_csv(spring_data, "./data/spring_data_downsampled.csv")
+# rm(spring_data)
+
+# summer_mwd_data = data_prep("~/Desktop/bangor_summer_mwd//", 10, 12)
+# write_csv(summer_mwd_data, "./data/summer_mwd_data_downsampled.csv")
+# rm(summer_mwd_data)
+
+# autumn_data = data_prep("/Volumes/MB Pro Backup/bangor_autumn_data/", 10, 12)
+# write_csv(autumn_data, "./data/autumn_data_downsampled.csv")
