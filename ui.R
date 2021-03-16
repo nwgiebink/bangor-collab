@@ -1,6 +1,7 @@
 # UI
 # Keaton Wilson & Noah Giebink
 # keatonwilson@me.com
+# nwgiebink@gmail.com
 # 2021-02-02
 
 
@@ -14,14 +15,21 @@ library(shinythemes)
 library(shinyWidgets)
 library(leaflet)
 
-
 # Shiny UI ---------------------------------------------------------------
 # Define UI for application that draws a histogram
 shinyUI(
     fluidPage(
       # Linking to custom css sheet
       tags$head(
-        tags$link(rel = "stylesheet", type = "text/css", href = "styling.css")
+        tags$link(rel = "stylesheet", type = "text/css", href = "styling.css"),
+        tags$style(".fa-facebook-square {color:#3B5998}",
+                   ".fa-twitter-square {color:#55ACEE}",
+                   ".fa-linkedin-square {color:#0e76a8}",
+                   ".fa-youtube-square {color:#FF0000}"),
+        tags$style(
+          type="text/css",
+          "#image img {max-width: 100%; width: 100%; height: auto}"
+        )
       ),
         theme = bs_theme(bootswatch = 'spacelab'),
         navbarPage(title = "Ecostructure Larval Dispersal",
@@ -87,15 +95,15 @@ shinyUI(
                                                      blue and green sectors of the Irish and Welsh economies."),
                                                     hr(),
                                                     h4("Connect"),
-                                                    HTML("<a href = 'https://twitter.com/ecostructure_'><i class = 'fa fa-twitter fa-3x'></i></a>"),
-                                                    HTML("<a href = 'https://www.facebook.com/ecostructureproject'><i class = 'fa fa-facebook fa-3x'></i></a>"),
-                                                    HTML("<a href = 'https://www.linkedin.com/company/64623160'><i class = 'fa fa-linkedin fa-3x'></i></a>"),
-                                                    HTML("<a href = 'https://www.youtube.com/channel/UCCFH19O7-CjQxMjnzXdh4pg'><i class = 'fa fa-youtube fa-3x'></i></a>"),
+                                                    HTML("<a href = 'https://twitter.com/ecostructure_'><i class = 'fa fa-twitter-square fa-3x'></i></a>"),
+                                                    HTML("<a href = 'https://www.facebook.com/ecostructureproject'><i class = 'fa fa-facebook-square fa-3x'></i></a>"),
+                                                    HTML("<a href = 'https://www.linkedin.com/company/64623160'><i class = 'fa fa-linkedin-square fa-3x'></i></a>"),
+                                                    HTML("<a href = 'https://www.youtube.com/channel/UCCFH19O7-CjQxMjnzXdh4pg'><i class = 'fa fa-youtube-square fa-3x'></i></a>"),
                                                     hr(),
                                                     h4("Funding"),
                                                     img(src = "image001.png", 
-                                                        width = 100, 
-                                                        height = 80,
+                                                        width = "100%", 
+                                                        height = "auto",
                                                         style = "margin-right: auto; margin-left: auto;")
                                              )
                                            )
@@ -120,6 +128,10 @@ shinyUI(
                                              selectInput("depth", 
                                                          label = "Choose a Depth:", 
                                                          choices = c("Surface", "Deep"), 
+                                                         multiple = FALSE),
+                                             selectInput("season",
+                                                         label = "Choose a Season",
+                                                         choices = c("Spring", "Summer", "Fall"),
                                                          multiple = FALSE)
                                              )
                                            )
@@ -184,15 +196,15 @@ tabPanel("Simulation",
                                                      blue and green sectors of the Irish and Welsh economies."),
                                  hr(),
                                  h4("Connect"),
-                                 HTML("<a href = 'https://twitter.com/ecostructure_'><i class = 'fa fa-twitter fa-3x'></i></a>"),
-                                 HTML("<a href = 'https://www.facebook.com/ecostructureproject'><i class = 'fa fa-facebook fa-3x'></i></a>"),
-                                 HTML("<a href = 'https://www.linkedin.com/company/64623160'><i class = 'fa fa-linkedin fa-3x'></i></a>"),
-                                 HTML("<a href = 'https://www.youtube.com/channel/UCCFH19O7-CjQxMjnzXdh4pg'><i class = 'fa fa-youtube fa-3x'></i></a>"),
+                                 HTML("<a href = 'https://twitter.com/ecostructure_'><i class = 'fa fa-twitter-square fa-3x'></i></a>"),
+                                 HTML("<a href = 'https://www.facebook.com/ecostructureproject'><i class = 'fa fa-facebook-square fa-3x'></i></a>"),
+                                 HTML("<a href = 'https://www.linkedin.com/company/64623160'><i class = 'fa fa-linkedin-square fa-3x'></i></a>"),
+                                 HTML("<a href = 'https://www.youtube.com/channel/UCCFH19O7-CjQxMjnzXdh4pg'><i class = 'fa fa-youtube-square fa-3x'></i></a>"),
                                  hr(),
                                  h4("Funding"),
                                  img(src = "image001.png", 
-                                     width = 100, 
-                                     height = 80,
+                                     width = "100%", 
+                                     height = "auto",
                                      style = "margin-right: auto; margin-left: auto;")
                           )
                         )

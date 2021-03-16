@@ -17,7 +17,6 @@ library(lubridate)
 #' matrix shape n sites * m positions
 #' separate lat and lon files paired by naming scheme
 #' e.g. lat: "March_01_2014_surface_lat_01.mat" lon: "March_01_2014_surface_lon_01.mat"
-#' count lat files = count lon files.
 #' 
 #' Arguments
 #' path: location of .mat files e.g. './data/spring_data/'
@@ -25,7 +24,7 @@ library(lubridate)
 #' temporal_res: temporal resolution, e.g. if temporal_res = 12, keep two positions per day
 #'
 #' Data
-#' Each simulation last for two month (i.e. particle are released during two month) 
+#' Each simulation lasts for two months (i.e. particles are released during two months) 
 #' and results (i.e. particles position) are saved hourly 
 #' (so matrices of 6964 sites * 1441 positions) for both latitude and longitude 
 #' (so for each simulation two matrices generated: one for lat and one for lon).
@@ -38,13 +37,18 @@ file_names <- dir(path, pattern = '.mat')
 
 # init progress bar
 progress_bar <- txtProgressBar(min = 0, max = length(file_names)/2, style = 3)
+progress = 0 # init progress bar value
 
-num_pairs <- length(file_names)/2 # count file pairs
-replicates <- vector(mode='list', length=num_pairs) # init dfs list
+# get all lat files to find corresponding lon matches
+lats <- file_names[which(str_detect(file_names, 'lat'))]
 
-for (f in 1:num_pairs) {
+replicates <- vector(mode='list', length = length(lats)) # init dfs list
+
+for (f in lats) {
   # find matching lat and lon file names and put them together
-  matches <- file_names[which(str_detect(file_names, str_sub(file_names[f], -6, -1)))]
+  matches <- file_names[which(str_detect(word(file_names, 2, sep = '_'), word(f, 2, sep = '_')) & # same date
+                                str_detect(file_names, word(f, 4, sep = '_')) & # same depth
+                                str_detect(file_names, str_sub(f, -6, -1)))] # same replicate
   match_dfs <- c(readMat(paste0(path,matches[1])), readMat(paste0(path,matches[2])))
 
   # change to data frame: rows = sites, columns = positions
@@ -69,17 +73,14 @@ for (f in 1:num_pairs) {
   lat_lon$replicate <- str_sub(matches[1], 1, -5)
 
   # create column: date
-
     # get date from file name string
   year <- word(matches[1], 3, sep = '_')
   month <- match(word(matches[1], sep = '_'), month.name)
   day <- word(matches[1], 2, sep = '_')
-
   date <- ymd(paste0(year, "-", month, "-", day))
 
   lat_lon$date <- date
   lat_lon <- lat_lon %>% mutate(date = date + hours(position - 1))
-
 
   # down sample
   # spatial  resolution:
@@ -94,8 +95,9 @@ for (f in 1:num_pairs) {
   replicates[[f]] <- lat_lon_reduced
 
   # update progress bar
-  setTxtProgressBar(progress_bar, value = f)
-  
+  progress <- progress + 1
+  setTxtProgressBar(progress_bar, value = progress)
+
 }
 # after exiting loop, bind all dfs in replicates list
 replicates_df <- bind_rows(replicates)
@@ -103,14 +105,3 @@ replicates_df <- bind_rows(replicates)
 close(progress_bar)
 return(replicates_df)
 }
-
-
-# # run 
-# march_01 <- data_prep('./data/spring_data/', 10, 12)
-# # save
-# write_csv2(march_01, './data/March_01_2014_surface.csv')
-
-
-spring_full = data_prep("/Volumes/bangor_collab/bangor_spring_data/", 20, 12)
-rm(spring_full)
-summer_full = data_prep("/Volumes/bangor_collab/bangor_summer_data/", 20, 12)

@@ -1,6 +1,7 @@
 # Server
 # Keaton Wilson & Noah Giebink
 # keatonwilson@me.com
+# nwgiebink@gmail.com
 # 2021-02-02
 
 library(shiny)
@@ -17,7 +18,7 @@ shinyServer(function(input, output) {
 
 # Map Panel to Make Location Selection ------------------------------------
 output$selection_map = renderLeaflet({
-  make_selection_map()
+  make_selection_map(data=spring_small)
 })
 
 
