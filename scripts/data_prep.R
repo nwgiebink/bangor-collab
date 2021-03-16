@@ -104,5 +104,4 @@ replicates_df <- bind_rows(replicates)
 
 close(progress_bar)
 return(replicates_df)
-
 }

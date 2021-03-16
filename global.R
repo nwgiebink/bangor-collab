@@ -7,8 +7,5 @@
 library(shiny)
 library(tidyverse)
 
-# spring <- read_csv('data/spring_data.csv')
-# spring_small <- spring %>% filter(position==1)
-# write.csv(spring_small, 'data/spring_small.csv')
-
-spring_small <- read_csv('data/spring_small.csv')
+# Reading in Starting Points ----------------------------------------------
+starting_points = read_csv("./data/distinct_starting_points.csv")
