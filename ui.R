@@ -212,6 +212,17 @@ tabPanel("Simulation",
            mainPanel(
              width = 9,
                fluidRow(
+                 sliderInput("date_selector", 
+                             "Select a Date and Time-Step: ", 
+                                         min = min(spring_data_test_site$date),
+                                         max = max(spring_data_test_site$date),
+                                         value = min(spring_data_test_site$date),
+                                         timeFormat = "%d %b %y",
+                                         animate = animationOptions(interval = 500, loop = FALSE)
+                                         
+                             )
+               ),
+               fluidRow(
                   leafletOutput("simulation_map", height = 850) 
                )
            )
