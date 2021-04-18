@@ -53,7 +53,9 @@ observeEvent(input$selection_map_marker_click, {
   }
 })
 
-# Filtering Data based on selections
+
+# Filtering Simulation Data based on Clicked Point ----------------------------
+
 to_listen = reactive({
   list(input$selection_map_marker_click, 
        input$depth, 
