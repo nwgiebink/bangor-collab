@@ -49,9 +49,27 @@ buffer.f <- function(foo, buffer, reps){
   foo[best,]
 }
 
+# filtering down to just lat lon
 starting_sites_lite = starting_sites %>%
   rename(x = lon, y = lat) %>%
   select(x, y)
 
-
+# running function
 downsampled = buffer.f(starting_sites_lite, 0.08, 5000)
+
+# checking
+plot(downsampled)
+
+# filtering based on Peter's suggestion
+downsampled_and_filtered = downsampled %>%
+  filter(y < 55 & y > 51) %>%
+  filter(x > -7.2) %>%
+  rename(lat = y, lon = x)
+
+# joining back onto main data
+filtered_sites = starting_sites %>%
+  semi_join(downsampled_and_filtered) %>%
+  pull(site)
+
+# writing to rds
+write_rds(filtered_sites, "./data/downsampled_and_filtered_starting_sites.rds")
