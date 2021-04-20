@@ -17,7 +17,7 @@ shinyServer(function(input, output, session) {
 
 # Map Panel to Make Location Selection ------------------------------------
 output$selection_map = renderLeaflet({
-  make_selection_map(data=spring_small)
+  make_selection_map()
 })
 
 

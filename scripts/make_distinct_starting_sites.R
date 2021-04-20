@@ -6,22 +6,17 @@
 # packages
 library(tidyverse)
 
-# sourcing data prep
-source("./scripts/data_prep.R")
+# loading starting positions
+distinct_starting_sites_all = read_csv("./data/distinct_starting_sites.csv")
 
-# Running limited time series but every site
-
-df = data_prep(path = "~/Desktop/bangor_spring_data/", 
-               spatial_res = 1, 
-               temporal_res = 120
-               )
+# loading in site ids
+site_id = readRDS("./data/downsampled_and_filtered_starting_sites.rds")
 
 # filtering for site 1
-df_filtered = df %>% 
-  filter(position == 1) %>% tibble() %>%
-  distinct(site, position, lat, lon)
+df_filtered = distinct_starting_sites_all %>%
+  filter(site %in% site_id)
 
 # writing to csv
-write_csv(df_filtered, "./data/distinct_starting_sites.csv")
+write_csv(df_filtered, "./data/filtered_distinct_starting_sites.csv")
 
   
