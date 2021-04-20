@@ -12,9 +12,10 @@ make_selection_map = function(data = distinct_starting_points) {
   leaflet(data) %>%
     addTiles() %>%
     addCircleMarkers(~lon, ~lat,
-                     radius = 2,
+                     radius = 4,
                      stroke = FALSE,
-                     fillOpacity = 0.6,
-                     opacity = 0.5
+                     fillOpacity = 0.8,
+                     opacity = 0.5, 
+                     layerId = ~ site
     )
 }
