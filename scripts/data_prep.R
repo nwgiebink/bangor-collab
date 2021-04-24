@@ -20,7 +20,7 @@ library(lubridate)
 #' 
 #' Arguments
 #' path: location of .mat files e.g. './data/spring_data/'
-#' spatial_res: spatial resolution, e.g. if spatial_res = 5, keep every fifth site
+#' sites_path: path to .rds file which is a list of site indices to keep
 #' temporal_res: temporal resolution, e.g. if temporal_res = 12, keep two positions per day
 #'
 #' Data
@@ -30,8 +30,8 @@ library(lubridate)
 #' (so for each simulation two matrices generated: one for lat and one for lon).
 
 
-data_prep <- function(path, spatial_res, temporal_res){
-
+data_prep <- function(path, sites_path, temporal_res){
+set.seed(42)
 # loop through 20 replicate files
 file_names <- dir(path, pattern = '.mat')
 
@@ -42,7 +42,15 @@ progress = 0 # init progress bar value
 # get all lat files to find corresponding lon matches
 lats <- file_names[which(str_detect(file_names, 'lat'))]
 
-replicates <- vector(mode='list', length = length(lats)) # init dfs list
+# random vector 1:6964 for random sample later 
+# (to make all replicates have the same random sample)
+shuffle <- sample.int(6964)
+
+# get indices of positions to keep
+site_ind <- readRDS(sites_path)
+
+# init dfs list
+replicates <- vector(mode='list', length = length(lats)) 
 
 for (f in lats) {
   # find matching lat and lon file names and put them together
@@ -55,6 +63,8 @@ for (f in lats) {
   lat <- data.frame(match_dfs[1])
   # maintain site provenance
   lat$site <- c(1:nrow(lat))
+  # make shuffled id for random sampling later
+  lat$shuffle <- shuffle
   # pivot to long format, columns: site, position, lat
   lat_tidy <- pivot_longer(lat, cols = lat.1:lat.1441, names_to = 'position', values_to = 'lat')
   # extract number from position
@@ -68,7 +78,16 @@ for (f in lats) {
 
   # cbind lat and lon; site and position should match
   lat_lon <- cbind(lat_tidy, lon_tidy[3])
-
+  
+  # down sample
+  # spatial  resolution:
+  # keep sites indexed in site_ind, read from sites_path rds 
+  lat_lon <- lat_lon %>% filter(site %in% site_ind)
+  
+  # temporal resolution:
+  # e.g. if arg temporal_res = 12, keep two positions per day
+  lat_lon <- lat_lon %>% filter(position == 1 | (position - 1) %% temporal_res == 0)
+  
   # create column: replicate, values = filename
   lat_lon$replicate <- str_sub(matches[1], 1, -5)
 
@@ -82,17 +101,8 @@ for (f in lats) {
   lat_lon$date <- date
   lat_lon <- lat_lon %>% mutate(date = date + hours(position - 1))
 
-  # down sample
-  # spatial  resolution:
-  # e.g. if arg spatial_res = 5, keep every fifth site
-  lat_lon_reduced <- lat_lon %>% filter(site %% spatial_res == 0)
-
-  # temporal resolution:
-  # e.g. if arg temporal_res = 12, keep two positions per day
-  lat_lon_reduced <- lat_lon_reduced %>% filter(position == 1 | (position - 1) %% temporal_res == 0)
-
   # add to list of replicate dfs
-  replicates[[f]] <- lat_lon_reduced
+  replicates[[f]] <- lat_lon
 
   # update progress bar
   progress <- progress + 1
@@ -105,3 +115,6 @@ replicates_df <- bind_rows(replicates)
 close(progress_bar)
 return(replicates_df)
 }
+
+# # e.g. just starting position
+# dev_t0 <- data_prep('./data/dev/tiny_dev/','./data/downsampled_and_filtered_starting_sites.rds', 5000)
