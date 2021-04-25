@@ -127,7 +127,7 @@ shinyUI(
                                                style = "width: 100%;",
                                              selectInput("depth", 
                                                          label = "Choose a Depth:", 
-                                                         choices = c("Surface", "Deep"), 
+                                                         choices = c("Surface", "Mid-water Depth"), 
                                                          multiple = FALSE),
                                              selectInput("season",
                                                          label = "Choose a Season",
@@ -135,7 +135,8 @@ shinyUI(
                                                          multiple = FALSE)
                                              )
                                            )
-                                )
+                                ), 
+                                fluidRow(verbatimTextOutput("Click_text"))
                                 )
                                            
                             )
@@ -218,7 +219,7 @@ tabPanel("Simulation",
                                          max = max(spring_data_test_site$date),
                                          value = min(spring_data_test_site$date),
                                          timeFormat = "%d %b %y",
-                                         animate = animationOptions(interval = 500, loop = FALSE)
+                                         animate = animationOptions(interval = 1000, loop = FALSE)
                                          
                              )
                ),

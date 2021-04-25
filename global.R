@@ -8,7 +8,8 @@ library(shiny)
 library(tidyverse)
 
 # Reading in Starting Points ----------------------------------------------
-spring_small = read_csv("./data/distinct_starting_points.csv")
+# Starting sites for selection map
+filtered_distinct_starting_sites = read_csv("./data/filtered_distinct_starting_sites.csv")
 
 # Reading in example data for simulation map
 # Testing and Loading in Data
@@ -16,3 +17,4 @@ spring_data = read_csv("./data/spring_data_downsampled.csv")
 
 spring_data_test_site = spring_data %>%
   filter(site == 2280)
+
