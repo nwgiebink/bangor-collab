@@ -6,6 +6,8 @@
 
 library(shiny)
 library(leaflet)
+library(leaflet.extras)
+library(ggmap)
 
 
 # Sourcing Scripts --------------------------------------------------------
@@ -56,38 +58,38 @@ observeEvent(input$selection_map_marker_click, {
 
 # Filtering Simulation Data based on Clicked Point ----------------------------
 
-to_listen = reactive({
-  list(input$selection_map_marker_click, 
-       input$depth, 
-       input$season)
-})
-filtered_data = observeEvent(to_listen(), {
-                               
-                               if(!is.null(input$selection_map_marker_click)) {
-                                 # season filter
-                                 data = if(input$season == "Fall") {
-                                   read_csv("./data/autumn_data_downsampled.csv")
-                                 } else if (input$season == "Summer") {
-                                   read_csv("./data/summer_data_downsampled.csv")
-                                 } else {
-                                   read_csv("./data/spring_data_downsampled.csv")
-                                 }
-                                 
-                                 # depth filter
-                                 data = if(input$depth == "Mid-Water Depth") {
-                                   data %>% filter(str_detect(replicate, "MWD"))
-                                 } else {
-                                   data %>% filter(str_detect(replicate, "surface"))
-                                 }
-                                 
-                                 # site filter
-                                 data = data %>% 
-                                   filter(site == input$selection_map_marker_click$site)
-                                 
-                                 return(data)
-                               }
-  
-})
+# to_listen = reactive({
+#   list(input$selection_map_marker_click, 
+#        input$depth, 
+#        input$season)
+# })
+# filtered_data = observeEvent(to_listen(), {
+#                                
+#                                if(!is.null(input$selection_map_marker_click)) {
+#                                  # season filter
+#                                  data = if(input$season == "Fall") {
+#                                    read_csv("./data/autumn_data_downsampled.csv")
+#                                  } else if (input$season == "Summer") {
+#                                    read_csv("./data/summer_data_downsampled.csv")
+#                                  } else {
+#                                    read_csv("./data/spring_downsampled_6hours.csv")
+#                                  }
+#                                  
+#                                  # depth filter
+#                                  data = if(input$depth == "Mid-Water Depth") {
+#                                    data %>% filter(str_detect(replicate, "MWD"))
+#                                  } else {
+#                                    data %>% filter(str_detect(replicate, "surface"))
+#                                  }
+#                                  
+#                                  # site filter
+#                                  data = data %>% 
+#                                    filter(site == input$selection_map_marker_click$site)
+#                                  
+#                                  return(data)
+#                                }
+#   
+# })
 
 
 # Map Panel to View Simulation --------------------------------------------
@@ -132,4 +134,39 @@ filtered_sim_data <- reactive({
 })
 
 
+# Map Panel to View Density Maps --------------------------------------------
+
+# Hex Density Maps with Leaflet
+output$density_map = renderLeaflet({
+  leaflet(spring_data_test_site %>%
+            rename(lng = lon) %>%
+            filter(lat != 0)) %>%
+    addTiles() %>%
+    # leaflethex::addHexbin(
+    #   opacity = 0.5,
+    #   radius = 20, 
+    #   lowEndColor = "darkblue", 
+    #   highEndColor="yellow", 
+    #   uniformSize = TRUE)
+    addHeatmap(minOpacity = 0.01, cellSize = 15, max = 0.01, radius = 15, blur = 35)
 })
+
+# Hex Density Maps with Leaflet
+
+world = map_data("world")
+output$gg_density_map = renderPlot({
+  ggplot(spring_data_test_site, aes(x = lon, y = lat)) +
+    geom_map(
+      data = world, map = world,
+      aes(long, lat, map_id = region), 
+      color = "black", 
+      fill = "lightgray", 
+      size = 0.1
+    ) +
+    geom_bin2d(bins = 1500, alpha = 0.8) +
+    coord_map(xlim = c(-11, 3), ylim = c(50, 57))
+})
+
+})
+
+
