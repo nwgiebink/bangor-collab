@@ -58,45 +58,52 @@ observeEvent(input$selection_map_marker_click, {
 
 # Filtering Simulation Data based on Clicked Point ----------------------------
 
-# to_listen = reactive({
-#   list(input$selection_map_marker_click, 
-#        input$depth, 
-#        input$season)
-# })
-# filtered_data = observeEvent(to_listen(), {
-#                                
-#                                if(!is.null(input$selection_map_marker_click)) {
-#                                  # season filter
-#                                  data = if(input$season == "Fall") {
-#                                    read_csv("./data/autumn_data_downsampled.csv")
-#                                  } else if (input$season == "Summer") {
-#                                    read_csv("./data/summer_data_downsampled.csv")
-#                                  } else {
-#                                    read_csv("./data/spring_downsampled_6hours.csv")
-#                                  }
-#                                  
-#                                  # depth filter
-#                                  data = if(input$depth == "Mid-Water Depth") {
-#                                    data %>% filter(str_detect(replicate, "MWD"))
-#                                  } else {
-#                                    data %>% filter(str_detect(replicate, "surface"))
-#                                  }
-#                                  
-#                                  # site filter
-#                                  data = data %>% 
-#                                    filter(site == input$selection_map_marker_click$site)
-#                                  
-#                                  return(data)
-#                                }
-#   
-# })
+reactive_data = reactiveValues()
+
+ observeEvent(input$load_data, {
+
+     if(!is.null(input$selection_map_marker_click)) {
+       withProgress(message = "Loading Data", value = 0, {
+         
+         season = if(input$season == "Fall") {
+           "autumn" 
+         } else if(input$season == "Summer") {
+           "summer"
+         } else if(input$season == "Spring") {
+           "spring"
+         }
+         
+         depth = if(input$depth == "Surface") {
+           "surface"
+         } else if(input$depth == "Mid-water Depth") {
+           "mwd"
+         }
+         
+         file_string = paste0("./data/", season, "_", depth, "_downsampled.csv")
+         
+         # grabbing data
+         all_data = read_csv(file_string)
+         
+         incProgress(1/2, detail = "Filtering Data")
+  
+         # site filter - and filtering out spurious lat 0º Data
+         reactive_data$filtered_data = all_data %>%
+           filter(site == input$selection_map_marker_click$id) %>%
+           filter(lat != 0)
+       
+         incProgress(2/2, detail = "Data uploaded successfully")
+       })
+       }
+    
+
+})
 
 
 # Map Panel to View Simulation --------------------------------------------
 
 # Base Simulation Map with Starting point
 output$simulation_map = renderLeaflet({
-  leaflet(spring_data_test_site %>% 
+  leaflet(reactive_data$filtered_data %>% 
             filter(position == 1)) %>%
     addTiles() %>%
     addCircleMarkers(lng = ~lon, 
@@ -105,11 +112,22 @@ output$simulation_map = renderLeaflet({
                      layerId = ~ site
                      )
 })
+ 
+ # Filter Data Based on Animation Map Selection -------------------------------------------------------------
+ #filter data depending on selected date THIS IS JUST WITHIN SIMULATION PANEL
+ filtered_sim_data <- reactive({
+   if(is.null(reactive_data$filtered_data)) {
+     filtered_data
+   } else {
+   reactive_data$filtered_data %>%
+     filter(date == input$date_selector)
+   }
+ })
 
 # Updating Map as Simulation Progresses with leaflet Proxy
 observe({
   spring_data_test_site = filtered_sim_data()
-  leafletProxy("simulation_map", data = spring_data_test_site) %>%
+  leafletProxy("simulation_map", data = filtered_sim_data()) %>%
     clearMarkers() %>%
     addCircleMarkers(lng = ~lon, 
                      lat = ~lat, 
@@ -125,20 +143,12 @@ observe({
   
 })
 
-# Filter Data Based on Animation Map Selection -------------------------------------------------------------
-#filter data depending on selected date
-filtered_sim_data <- reactive({
-  req(input$date_selector)
-  spring_data_test_site %>%
-    filter(date == input$date_selector)
-})
-
 
 # Map Panel to View Density Maps --------------------------------------------
 
 # Hex Density Maps with Leaflet
 output$density_map = renderLeaflet({
-  leaflet(spring_data_test_site %>%
+  leaflet(reactive_data$filtered_data %>%
             rename(lng = lon) %>%
             filter(lat != 0)) %>%
     addTiles() %>%
@@ -155,7 +165,7 @@ output$density_map = renderLeaflet({
 
 world = map_data("world")
 output$gg_density_map = renderPlot({
-  ggplot(spring_data_test_site, aes(x = lon, y = lat)) +
+  ggplot(reactive_data$filtered_data, aes(x = lon, y = lat)) +
     geom_map(
       data = world, map = world,
       aes(long, lat, map_id = region), 
