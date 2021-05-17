@@ -21,4 +21,10 @@ filtered_distinct_starting_sites = read_csv("./data/filtered_distinct_starting_s
 # write_csv(spring_data_test_site, "./data/spring_data_test_site.csv")
 
 # initializing filtered data with some real data to set inputs
-filtered_data = read_csv("./data/spring_data_test_site.csv")
+# Testing
+# fall_test = read_csv("./data/autumn_mwd_downsampled.csv")
+# spring_test = read_csv("./data/spring_mwd_downsampled.csv")
+# summer_test = read_csv("./data/summer_mwd_downsampled.csv")
+# 
+# fall_test
+# spring_test

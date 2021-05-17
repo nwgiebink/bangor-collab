@@ -63,7 +63,7 @@ reactive_data = reactiveValues()
  observeEvent(input$load_data, {
 
      if(!is.null(input$selection_map_marker_click)) {
-       withProgress(message = "Loading Data", value = 0, {
+       withProgress(message = "Loading Data", detail = "Please wait", value = 0, {
          
          season = if(input$season == "Fall") {
            "autumn" 
@@ -92,17 +92,32 @@ reactive_data = reactiveValues()
            filter(lat != 0)
        
          incProgress(2/2, detail = "Data uploaded successfully")
+         
+         updateSliderInput(session = session, 
+                     "date_selector", 
+                     "Select a Date and Time-Step: ", 
+                     min = min(reactive_data$filtered_data$date),
+                     max = max(reactive_data$filtered_data$date),
+                     value = min(reactive_data$filtered_data$date))
+                     
        })
        }
     
 
 })
 
+ # testing
+ # test = read_csv("./data/summer_surface_downsampled.csv")
+ # test_spring = read_csv("./data/spring_surface_downsampled.csv")
+ # 
+ # filtered = test %>% filter(site == 962) %>% filter(lat !=0)
+ # min(filtered$lat)
 
 # Map Panel to View Simulation --------------------------------------------
 
 # Base Simulation Map with Starting point
 output$simulation_map = renderLeaflet({
+  req(reactive_data$filtered_data)
   leaflet(reactive_data$filtered_data %>% 
             filter(position == 1)) %>%
     addTiles() %>%
@@ -115,29 +130,40 @@ output$simulation_map = renderLeaflet({
  
  # Filter Data Based on Animation Map Selection -------------------------------------------------------------
  #filter data depending on selected date THIS IS JUST WITHIN SIMULATION PANEL
- filtered_sim_data <- reactive({
+ # filtered_sim_data <- reactive({
+ #   if(is.null(reactive_data$filtered_data)) {
+ #     NULL
+ #   } else {
+ #   reactive_data$filtered_data %>%
+ #     filter(date == input$date_selector)
+ #   }
+ # })
+ 
+ 
+ observeEvent(input$date_selector, {
    if(is.null(reactive_data$filtered_data)) {
-     filtered_data
+     reactive_data$filtered_data_by_date = NULL
    } else {
-   reactive_data$filtered_data %>%
-     filter(date == input$date_selector)
+     reactive_data$filtered_data_by_date = reactive_data$filtered_data %>%
+       filter(date == input$date_selector)
    }
  })
 
 # Updating Map as Simulation Progresses with leaflet Proxy
 observe({
-  spring_data_test_site = filtered_sim_data()
-  leafletProxy("simulation_map", data = filtered_sim_data()) %>%
+  req(reactive_data$filtered_data_by_date)
+  leafletProxy("simulation_map", data = reactive_data$filtered_data_by_date) %>%
     clearMarkers() %>%
     addCircleMarkers(lng = ~lon, 
                      lat = ~lat, 
                      radius = 1
     ) %>%
-    flyToBounds(min(spring_data_test_site$lon), 
-              min(spring_data_test_site$lat), 
-              max(spring_data_test_site$lon), 
-              max(spring_data_test_site$lat), 
-              options = list(duration = 0.5)
+    flyToBounds(min(reactive_data$filtered_data_by_date$lon), 
+              min(reactive_data$filtered_data_by_date$lat), 
+              max(reactive_data$filtered_data_by_date$lon), 
+              max(reactive_data$filtered_data_by_date$lat), 
+              options = list(duration = 0.5, 
+                             animate = TRUE)
               )
     
   

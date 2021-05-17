@@ -220,8 +220,9 @@ tabPanel("Simulation",
                                          min = min(filtered_data$date),
                                          max = max(filtered_data$date),
                                          value = min(filtered_data$date),
-                                         timeFormat = "%d %b %y",
-                                         animate = animationOptions(interval = 1000, loop = FALSE)
+                                         timeFormat = "%Y-%m-%d %h:%m:%s",
+                                         step = 21600,
+                                         animate = animationOptions(interval = 2000, loop = FALSE)
                                          
                              )
                ),
