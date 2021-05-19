@@ -214,7 +214,8 @@ tabPanel("Simulation",
            ), 
            mainPanel(
              width = 9,
-               fluidRow(
+               fluidRow(column(width = 1), 
+                column(width = 11,        
                  sliderInput("date_selector", 
                              "Select a Date and Time-Step: ", 
                                          min = min(filtered_data$date),
@@ -225,6 +226,7 @@ tabPanel("Simulation",
                                          animate = animationOptions(interval = 2000, loop = FALSE)
                                          
                              )
+                )
                ),
                fluidRow(
                   leafletOutput("simulation_map", height = 850) 

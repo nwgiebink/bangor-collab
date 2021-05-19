@@ -8,6 +8,7 @@ library(shiny)
 library(leaflet)
 library(leaflet.extras)
 library(ggmap)
+library(shinybusy)
 
 
 # Sourcing Scripts --------------------------------------------------------
@@ -63,8 +64,9 @@ reactive_data = reactiveValues()
  observeEvent(input$load_data, {
 
      if(!is.null(input$selection_map_marker_click)) {
-       withProgress(message = "Loading Data", detail = "Please wait", value = 0, {
-         
+        
+         show_modal_spinner(text = "Loading and filtering simulation data")
+       
          season = if(input$season == "Fall") {
            "autumn" 
          } else if(input$season == "Summer") {
@@ -81,17 +83,15 @@ reactive_data = reactiveValues()
          
          file_string = paste0("./data/", season, "_", depth, "_downsampled.csv")
          
+         
          # grabbing data
          all_data = read_csv(file_string)
          
-         incProgress(1/2, detail = "Filtering Data")
-  
          # site filter - and filtering out spurious lat 0º Data
          reactive_data$filtered_data = all_data %>%
            filter(site == input$selection_map_marker_click$id) %>%
            filter(lat != 0)
        
-         incProgress(2/2, detail = "Data uploaded successfully")
          
          updateSliderInput(session = session, 
                      "date_selector", 
@@ -99,8 +99,8 @@ reactive_data = reactiveValues()
                      min = min(reactive_data$filtered_data$date),
                      max = max(reactive_data$filtered_data$date),
                      value = min(reactive_data$filtered_data$date))
-                     
-       })
+          
+         remove_modal_spinner()          
        }
     
 
@@ -157,14 +157,15 @@ observe({
     addCircleMarkers(lng = ~lon, 
                      lat = ~lat, 
                      radius = 1
-    ) %>%
-    flyToBounds(min(reactive_data$filtered_data_by_date$lon), 
-              min(reactive_data$filtered_data_by_date$lat), 
-              max(reactive_data$filtered_data_by_date$lon), 
-              max(reactive_data$filtered_data_by_date$lat), 
-              options = list(duration = 0.5, 
-                             animate = TRUE)
-              )
+    )
+  
+    # flyToBounds(min(reactive_data$filtered_data_by_date$lon), 
+    #           min(reactive_data$filtered_data_by_date$lat), 
+    #           max(reactive_data$filtered_data_by_date$lon), 
+    #           max(reactive_data$filtered_data_by_date$lat), 
+    #           options = list(duration = 0.5, 
+    #                          animate = TRUE)
+    #           )
     
   
 })

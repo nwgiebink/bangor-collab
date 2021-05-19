@@ -28,3 +28,4 @@ filtered_distinct_starting_sites = read_csv("./data/filtered_distinct_starting_s
 # 
 # fall_test
 # spring_test
+filtered_data = read_csv("./data/spring_data_test_site.csv")
