@@ -125,7 +125,12 @@ output$simulation_map = renderLeaflet({
                      lat = ~lat, 
                      radius = 1, 
                      layerId = ~ site
-                     )
+                     ) %>%
+    fitBounds(min(reactive_data$filtered_data$lon), 
+                 min(reactive_data$filtered_data$lat), 
+                 max(reactive_data$filtered_data$lon), 
+                 max(reactive_data$filtered_data$lat)
+                 )
 })
  
  # Filter Data Based on Animation Map Selection -------------------------------------------------------------
