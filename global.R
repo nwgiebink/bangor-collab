@@ -13,8 +13,19 @@ filtered_distinct_starting_sites = read_csv("./data/filtered_distinct_starting_s
 
 # Reading in example data for simulation map
 # Testing and Loading in Data
-spring_data = read_csv("./data/spring_downsampled_6hours.csv")
+# spring_data = read_csv("./data/spring_downsampled_6hours.csv")
+# 
+# spring_data_test_site = spring_data %>%
+#   filter(site == 4890 & str_detect(replicate, "surface"))
+# 
+# write_csv(spring_data_test_site, "./data/spring_data_test_site.csv")
 
-spring_data_test_site = spring_data %>%
-  filter(site == 4890 & str_detect(replicate, "surface"))
-
+# initializing filtered data with some real data to set inputs
+# Testing
+# fall_test = read_csv("./data/autumn_mwd_downsampled.csv")
+# spring_test = read_csv("./data/spring_mwd_downsampled.csv")
+# summer_test = read_csv("./data/summer_mwd_downsampled.csv")
+# 
+# fall_test
+# spring_test
+filtered_data = read_csv("./data/spring_data_test_site.csv")

@@ -133,7 +133,8 @@ shinyUI(
                                              selectInput("season",
                                                          label = "Choose a Season",
                                                          choices = c("Spring", "Summer", "Fall"),
-                                                         multiple = FALSE)
+                                                         multiple = FALSE), 
+                                             actionButton("load_data", "Load Data")
                                              )
                                            )
                                 ), 
@@ -213,16 +214,19 @@ tabPanel("Simulation",
            ), 
            mainPanel(
              width = 9,
-               fluidRow(
+               fluidRow(column(width = 1), 
+                column(width = 11,        
                  sliderInput("date_selector", 
                              "Select a Date and Time-Step: ", 
-                                         min = min(spring_data_test_site$date),
-                                         max = max(spring_data_test_site$date),
-                                         value = min(spring_data_test_site$date),
-                                         timeFormat = "%d %b %y",
-                                         animate = animationOptions(interval = 1000, loop = FALSE)
+                                         min = min(filtered_data$date),
+                                         max = max(filtered_data$date),
+                                         value = min(filtered_data$date),
+                                         timeFormat = "%Y-%m-%d %h:%m:%s",
+                                         step = 21600,
+                                         animate = animationOptions(interval = 2000, loop = FALSE)
                                          
                              )
+                )
                ),
                fluidRow(
                   leafletOutput("simulation_map", height = 850) 
