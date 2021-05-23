@@ -749,6 +749,13 @@
       "Repository": "CRAN",
       "Hash": "67f284ca3b12634dfabbbb5c247f5966"
     },
+    "shinybusy": {
+      "Package": "shinybusy",
+      "Version": "0.2.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "c38fc071d4def5e642c8dc34c3a082e4"
+    },
     "shinydashboard": {
       "Package": "shinydashboard",
       "Version": "0.7.1",
