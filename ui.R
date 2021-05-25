@@ -131,9 +131,16 @@ shinyUI(
                                                          choices = c("Surface", "Mid-water Depth"), 
                                                          multiple = FALSE),
                                              selectInput("season",
-                                                         label = "Choose a Season",
-                                                         choices = c("Spring", "Summer", "Fall"),
+                                                         label = "Choose a Season:",
+                                                         choices = c("Spring", "Summer", "Autumn"),
                                                          multiple = FALSE), 
+                                             sliderInput("window", 
+                                                         label = "Choose a duration in water column (days):", 
+                                                         min = 10, 
+                                                         max = 40, 
+                                                         value = 20, 
+                                                         step = 1
+                                                         ),
                                              actionButton("load_data", "Load Data")
                                              )
                                            )
@@ -217,13 +224,11 @@ tabPanel("Simulation",
                fluidRow(column(width = 1), 
                 column(width = 11,        
                  sliderInput("date_selector", 
-                             "Select a Date and Time-Step: ", 
-                                         min = min(filtered_data$date),
-                                         max = max(filtered_data$date),
-                                         value = min(filtered_data$date),
-                                         timeFormat = "%Y-%m-%d %h:%m:%s",
-                                         step = 21600,
-                                         animate = animationOptions(interval = 2000, loop = FALSE)
+                             "Select a day from release: ", 
+                                         min = min(filtered_data$position),
+                                         max = max(filtered_data$position),
+                                         value = min(filtered_data$position),
+                                         animate = animationOptions(interval = 1000, loop = FALSE, )
                                          
                              )
                 )

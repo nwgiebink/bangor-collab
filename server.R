@@ -67,7 +67,7 @@ reactive_data = reactiveValues()
         
          show_modal_spinner(text = "Loading and filtering simulation data")
        
-         season = if(input$season == "Fall") {
+         season = if(input$season == "Autumn") {
            "autumn" 
          } else if(input$season == "Summer") {
            "summer"
@@ -83,6 +83,8 @@ reactive_data = reactiveValues()
          
          file_string = paste0("./data/", season, "_", depth, "_downsampled.csv")
          
+         # position math
+         end_position = input$window*24
          
          # grabbing data
          all_data = read_csv(file_string)
@@ -90,15 +92,15 @@ reactive_data = reactiveValues()
          # site filter - and filtering out spurious lat 0º Data
          reactive_data$filtered_data = all_data %>%
            filter(site == input$selection_map_marker_click$id) %>%
-           filter(lat != 0)
+           filter(lat != 0) %>%
+           filter(position <= end_position)
        
-         
          updateSliderInput(session = session, 
                      "date_selector", 
                      "Select a Date and Time-Step: ", 
-                     min = min(reactive_data$filtered_data$date),
-                     max = max(reactive_data$filtered_data$date),
-                     value = min(reactive_data$filtered_data$date))
+                     min = min(reactive_data$filtered_data$position),
+                     max = max(reactive_data$filtered_data$position),
+                     value = min(reactive_data$filtered_data$position))
           
          remove_modal_spinner()          
        }
@@ -150,7 +152,7 @@ output$simulation_map = renderLeaflet({
      reactive_data$filtered_data_by_date = NULL
    } else {
      reactive_data$filtered_data_by_date = reactive_data$filtered_data %>%
-       filter(date == input$date_selector)
+       filter(position == input$date_selector)
    }
  })
 
