@@ -9,10 +9,10 @@ library(tidyverse)
 
 
 # Autumn ------------------------------------------------------------------
-autumn_mwd = read_csv("./data/autumn_downsampled_6hours.csv") %>%
+autumn_mwd = read_csv("./data/autumn_downsampled_2hours.csv") %>%
   filter(str_detect(replicate, "MWD"))
 
-autumn_surface = read_csv("./data/autumn_downsampled_6hours.csv") %>%
+autumn_surface = read_csv("./data/autumn_downsampled_2hours.csv") %>%
   filter(str_detect(replicate, "surface"))
 
 # writing
@@ -21,10 +21,10 @@ write_csv(autumn_surface, "./data/autumn_surface_downsampled.csv")
 
 
 # Spring ------------------------------------------------------------------
-spring_mwd = read_csv("./data/spring_downsampled_6hours.csv") %>%
+spring_mwd = read_csv("./data/spring_downsampled_2hours.csv") %>%
   filter(str_detect(replicate, "MWD"))
 
-spring_surface = read_csv("./data/spring_downsampled_6hours.csv") %>%
+spring_surface = read_csv("./data/spring_downsampled_2hours.csv") %>%
   filter(str_detect(replicate, "surface"))
 
 # writing
@@ -33,10 +33,10 @@ write_csv(spring_surface, "./data/spring_surface_downsampled.csv")
 
 
 # Summer ------------------------------------------------------------------
-summer_mwd = read_csv("./data/summer_downsampled_6hours.csv") %>%
+summer_mwd = read_csv("./data/summer_downsampled_2hours.csv") %>%
   filter(str_detect(replicate, "MWD"))
 
-summer_surface = read_csv("./data/summer_downsampled_6hours.csv") %>%
+summer_surface = read_csv("./data/summer_downsampled_2hours.csv") %>%
   filter(str_detect(replicate, "surface"))
 
 # writing

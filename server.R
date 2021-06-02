@@ -9,6 +9,11 @@ library(leaflet)
 library(leaflet.extras)
 library(ggmap)
 library(shinybusy)
+library(sp)
+library(rgdal)
+# library("maptools")
+library(KernSmooth)
+library(raster)
 
 
 # Sourcing Scripts --------------------------------------------------------
@@ -84,7 +89,9 @@ reactive_data = reactiveValues()
          file_string = paste0("./data/", season, "_", depth, "_downsampled.csv")
          
          # position math
-         end_position = input$window*24
+         end_position = (input$window)*24
+         
+         print(end_position)
          
          # grabbing data
          all_data = read_csv(file_string)
@@ -93,33 +100,49 @@ reactive_data = reactiveValues()
          reactive_data$filtered_data = all_data %>%
            filter(site == input$selection_map_marker_click$id) %>%
            filter(lat != 0) %>%
-           filter(position <= end_position)
-       
-         updateSliderInput(session = session, 
-                     "date_selector", 
-                     "Select a Date and Time-Step: ", 
-                     min = min(reactive_data$filtered_data$position),
-                     max = max(reactive_data$filtered_data$position),
-                     value = min(reactive_data$filtered_data$position))
+           filter(position <= end_position) %>%
+           mutate(hours_since_release = position - 1)
           
-         remove_modal_spinner()          
+         remove_modal_spinner()
+         
+         print(reactive_data$filtered_data)
        }
     
 
 })
-
- # testing
- # test = read_csv("./data/summer_surface_downsampled.csv")
- # test_spring = read_csv("./data/spring_surface_downsampled.csv")
- # 
- # filtered = test %>% filter(site == 962) %>% filter(lat !=0)
- # min(filtered$lat)
+ 
+ ## Render slider input based on server-generated values ----------------------
+  output$date_selector = renderUI({
+    sliderInput("date_selector_input", 
+                "Select hour since release: ", 
+                min = min(reactive_data$filtered_data$hours_since_release),
+                max = max(reactive_data$filtered_data$hours_since_release),
+                value = min(reactive_data$filtered_data$hours_since_release),
+                animate = animationOptions(interval = 150, loop = FALSE), 
+                step = 2
+                
+    )
+  })
+ 
+ ## Updating slider input based on animation ----------------------------------
+ reactive({
+   updateSliderInput(session = session, 
+                     "date_selector_input", 
+                     min = min(reactive_data$filtered_data$hours_since_release),
+                     max = max(reactive_data$filtered_data$hours_since_release),
+                     value = min(reactive_data$filtered_data$hours_since_release),
+                     animate = animationOptions(interval = 150, loop = FALSE),
+                     step = 2
+                     )
+ })
 
 # Map Panel to View Simulation --------------------------------------------
 
 # Base Simulation Map with Starting point
 output$simulation_map = renderLeaflet({
+  
   req(reactive_data$filtered_data)
+  
   leaflet(reactive_data$filtered_data %>% 
             filter(position == 1)) %>%
     addTiles() %>%
@@ -136,23 +159,13 @@ output$simulation_map = renderLeaflet({
 })
  
  # Filter Data Based on Animation Map Selection -------------------------------------------------------------
- #filter data depending on selected date THIS IS JUST WITHIN SIMULATION PANEL
- # filtered_sim_data <- reactive({
- #   if(is.null(reactive_data$filtered_data)) {
- #     NULL
- #   } else {
- #   reactive_data$filtered_data %>%
- #     filter(date == input$date_selector)
- #   }
- # })
  
- 
- observeEvent(input$date_selector, {
+ observeEvent(input$date_selector_input, {
    if(is.null(reactive_data$filtered_data)) {
      reactive_data$filtered_data_by_date = NULL
    } else {
      reactive_data$filtered_data_by_date = reactive_data$filtered_data %>%
-       filter(position == input$date_selector)
+       filter(hours_since_release == input$date_selector_input)
    }
  })
 
@@ -166,51 +179,50 @@ observe({
                      radius = 1
     )
   
-    # flyToBounds(min(reactive_data$filtered_data_by_date$lon), 
-    #           min(reactive_data$filtered_data_by_date$lat), 
-    #           max(reactive_data$filtered_data_by_date$lon), 
-    #           max(reactive_data$filtered_data_by_date$lat), 
-    #           options = list(duration = 0.5, 
-    #                          animate = TRUE)
-    #           )
-    
-  
 })
 
 
 # Map Panel to View Density Maps --------------------------------------------
 
-# Hex Density Maps with Leaflet
+# Kernel Density estimate Map
 output$density_map = renderLeaflet({
-  leaflet(reactive_data$filtered_data %>%
-            rename(lng = lon) %>%
-            filter(lat != 0)) %>%
+  
+  # Generating input needed by bkde2d
+  density_data = reactive_data$filtered_data %>%
+    filter(lat != 0) %>%
+    filter(hours_since_release == max(hours_since_release)) %>%
+    select(lon, lat)
+  
+  ## Create kernel density output
+  kde <- bkde2D(as.matrix(density_data),
+                bandwidth=c(.025, .038), gridsize = c(1000,1000))
+  # Create Raster from Kernel Density output
+  KernelDensityRaster <- raster(list(x=kde$x1 ,y=kde$x2 ,z = kde$fhat))
+  
+  #set low density cells as NA so we can make them transparent with the colorNumeric function
+  KernelDensityRaster@data@values[which(KernelDensityRaster@data@values < 1)] <- NA
+  
+  #create pal function for coloring the raster
+  palRaster <- colorNumeric("Spectral", domain = KernelDensityRaster@data@values, na.color = "transparent")
+  
+  # making map       
+  leaflet(data = reactive_data$filtered_data %>% filter(position == 1)) %>%
     addTiles() %>%
-    # leaflethex::addHexbin(
-    #   opacity = 0.5,
-    #   radius = 20, 
-    #   lowEndColor = "darkblue", 
-    #   highEndColor="yellow", 
-    #   uniformSize = TRUE)
-    addHeatmap(minOpacity = 0.01, cellSize = 15, max = 0.01, radius = 15, blur = 35)
+    addRasterImage(KernelDensityRaster, 
+                   colors = palRaster, 
+                   opacity = .8) %>%
+    addLegend(pal = palRaster, 
+              values = KernelDensityRaster@data@values, 
+              title = "Kernel Density of Points") %>%
+    addCircleMarkers(lng = ~lon, 
+               lat = ~lat, 
+               radius = 5, 
+               color = "black"
+               )
 })
 
-# Hex Density Maps with Leaflet
-
-world = map_data("world")
-output$gg_density_map = renderPlot({
-  ggplot(reactive_data$filtered_data, aes(x = lon, y = lat)) +
-    geom_map(
-      data = world, map = world,
-      aes(long, lat, map_id = region), 
-      color = "black", 
-      fill = "lightgray", 
-      size = 0.1
-    ) +
-    geom_bin2d(bins = 1500, alpha = 0.8) +
-    coord_map(xlim = c(-11, 3), ylim = c(50, 57))
-})
 
 })
+
 
 

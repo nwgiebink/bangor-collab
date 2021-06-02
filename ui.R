@@ -15,6 +15,10 @@ library(shinythemes)
 library(shinyWidgets)
 library(leaflet)
 library(leaflethex)
+library(shinycssloaders)
+
+# Sourcing Sidepanel Function----------------------------------------------
+source("./scripts/build_side_panel.R")
 
 # Shiny UI ---------------------------------------------------------------
 # Define UI for application that draws a histogram
@@ -47,73 +51,12 @@ shinyUI(
                             value = "tab1", 
                             fluid = TRUE, 
                             sidebarLayout(
-                              sidebarPanel(width = 3,
-                                           fluidRow(
-                                             column(width = 12,
-                                                    h4("Instructions"), 
-                                                    HTML("<p><strong>Step 1:</strong> Select a Location from the Map<br>
-                                                    <br>
-                                                    <strong>Step 2:</strong> Select a depth for particle release<br>
-                                                    <br>
-                                                    <strong>Step 3:</strong> Select when particles are released<br>
-                                                    <br>
-                                                    <strong>Step 4:</strong> Select how long particles stay in the water<br>
-                                                    <br>
-                                                    <strong>Step 5:</strong> Once selections are complete, move to the simulation tab<br>
-                                                         ")
-                                             )
-                                           ), 
-                                           hr(), 
-                                           fluidRow(
-                                             column(width = 12,
-                                                    h4("Contact Information"),
-                                                    p("Dr. Peter Robins"),
-                                                    HTML("<i class = 'fas fa-envelope'></i> <a href = 'p.robins@bangor.ac.uk'>p.robins@bangor.ac.uk</a>")
-                                             )
-                                           ), 
-                                           hr(), 
-                                           fluidRow(
-                                             column(width = 12,
-                                                    # style = "margin: 0px; padding: 0px; border: 0px",
-                                                    h4("Overview"),
-                                                    p(a("ECOSTRUCTURE", 
-                                                        href = "http://http://www.ecostructureproject.eu/", 
-                                                        target="_blank"), 
-                                                      "will raise awareness of eco-engineering solutions to 
-                                                       the challenge of climate change. We aim to provide developers 
-                                                       and regulators with accessible tools and resources, based on 
-                                                       research in the fields of ecology, engineering and socioeconomics."),
-                                                    br(),
-                                                    h4("Disclaimer"),
-                                                    p("Ecostructure brings together five leading universities 
-                                                     in Wales and Ireland to research and raise awareness of 
-                                                     eco-engineering solutions to the challenge of coastal 
-                                                     adaptation to climate change. Ecostructure aims to 
-                                                     promote the incorporation of secondary ecological 
-                                                     and societal benefits into coastal defence and 
-                                                     renewable energy structures, with benefits to the 
-                                                     environment, to coastal communities, and to the 
-                                                     blue and green sectors of the Irish and Welsh economies."),
-                                                    hr(),
-                                                    h4("Connect"),
-                                                    HTML("<a href = 'https://twitter.com/ecostructure_'><i class = 'fa fa-twitter-square fa-3x'></i></a>"),
-                                                    HTML("<a href = 'https://www.facebook.com/ecostructureproject'><i class = 'fa fa-facebook-square fa-3x'></i></a>"),
-                                                    HTML("<a href = 'https://www.linkedin.com/company/64623160'><i class = 'fa fa-linkedin-square fa-3x'></i></a>"),
-                                                    HTML("<a href = 'https://www.youtube.com/channel/UCCFH19O7-CjQxMjnzXdh4pg'><i class = 'fa fa-youtube-square fa-3x'></i></a>"),
-                                                    hr(),
-                                                    h4("Funding"),
-                                                    img(src = "image001.png", 
-                                                        width = "100%", 
-                                                        height = "auto",
-                                                        style = "margin-right: auto; margin-left: auto;")
-                                             )
-                                           )
-                              ), 
+                              build_side_panel(), 
                               mainPanel(width = 9,
                                 fluidRow(
                                     column(width = 8,
                                            style = "padding: 5px;",
-                                              box(title = "Select a Location",
+                                              box(title = "Selection map: select a site",
                                                   width = NULL,
                                                   status = "primary",
                                                   solidHeader = FALSE,
@@ -157,84 +100,14 @@ tabPanel("Simulation",
          value = "tab2", 
          fluid = TRUE, 
          sidebarLayout(
-           sidebarPanel(width = 3,
-                        fluidRow(
-                          column(width = 12,
-                                 h4("Instructions"), 
-                                 HTML("<p><strong>Step 1:</strong> Select a Location from the Map<br>
-                                                    <br>
-                                                    <strong>Step 2:</strong> Select a depth for particle release<br>
-                                                    <br>
-                                                    <strong>Step 3:</strong> Select when particles are released<br>
-                                                    <br>
-                                                    <strong>Step 4:</strong> Select how long particles stay in the water<br>
-                                                    <br>
-                                                    <strong>Step 5:</strong> Once selections are complete, move to the simulation tab<br>
-                                                         ")
-                          )
-                        ), 
-                        hr(), 
-                        fluidRow(
-                          column(width = 12,
-                                 h4("Contact Information"),
-                                 p("Dr. Peter Robins"),
-                                 HTML("<i class = 'fas fa-envelope'></i> <a href = 'p.robins@bangor.ac.uk'>p.robins@bangor.ac.uk</a>")
-                          )
-                        ), 
-                        hr(), 
-                        fluidRow(
-                          column(width = 12,
-                                 # style = "margin: 0px; padding: 0px; border: 0px",
-                                 h4("Overview"),
-                                 p(a("ECOSTRUCTURE", 
-                                     href = "http://http://www.ecostructureproject.eu/", 
-                                     target="_blank"), 
-                                   "will raise awareness of eco-engineering solutions to 
-                                                       the challenge of climate change. We aim to provide developers 
-                                                       and regulators with accessible tools and resources, based on 
-                                                       research in the fields of ecology, engineering and socioeconomics."),
-                                 br(),
-                                 h4("Disclaimer"),
-                                 p("Ecostructure brings together five leading universities 
-                                                     in Wales and Ireland to research and raise awareness of 
-                                                     eco-engineering solutions to the challenge of coastal 
-                                                     adaptation to climate change. Ecostructure aims to 
-                                                     promote the incorporation of secondary ecological 
-                                                     and societal benefits into coastal defence and 
-                                                     renewable energy structures, with benefits to the 
-                                                     environment, to coastal communities, and to the 
-                                                     blue and green sectors of the Irish and Welsh economies."),
-                                 hr(),
-                                 h4("Connect"),
-                                 HTML("<a href = 'https://twitter.com/ecostructure_'><i class = 'fa fa-twitter-square fa-3x'></i></a>"),
-                                 HTML("<a href = 'https://www.facebook.com/ecostructureproject'><i class = 'fa fa-facebook-square fa-3x'></i></a>"),
-                                 HTML("<a href = 'https://www.linkedin.com/company/64623160'><i class = 'fa fa-linkedin-square fa-3x'></i></a>"),
-                                 HTML("<a href = 'https://www.youtube.com/channel/UCCFH19O7-CjQxMjnzXdh4pg'><i class = 'fa fa-youtube-square fa-3x'></i></a>"),
-                                 hr(),
-                                 h4("Funding"),
-                                 img(src = "image001.png", 
-                                     width = "100%", 
-                                     height = "auto",
-                                     style = "margin-right: auto; margin-left: auto;")
-                          )
-                        )
-           ), 
+           build_side_panel(), 
            mainPanel(
              width = 9,
-               fluidRow(column(width = 1), 
-                column(width = 11,        
-                 sliderInput("date_selector", 
-                             "Select a day from release: ", 
-                                         min = min(filtered_data$position),
-                                         max = max(filtered_data$position),
-                                         value = min(filtered_data$position),
-                                         animate = animationOptions(interval = 1000, loop = FALSE, )
-                                         
-                             )
-                )
+               fluidRow(
+                       uiOutput("date_selector")
                ),
                fluidRow(
-                  leafletOutput("simulation_map", height = 850) 
+                  leafletOutput("simulation_map", height = 850)
                )
            )
          )
@@ -245,73 +118,59 @@ tabPanel("Density Maps",
          value = "tab3", 
          fluid = TRUE, 
          sidebarLayout(
-           sidebarPanel(width = 3,
-                        fluidRow(
-                          column(width = 12,
-                                 h4("Instructions"), 
-                                 HTML("<p><strong>Step 1:</strong> Select a Location from the Map<br>
-                                                    <br>
-                                                    <strong>Step 2:</strong> Select a depth for particle release<br>
-                                                    <br>
-                                                    <strong>Step 3:</strong> Select when particles are released<br>
-                                                    <br>
-                                                    <strong>Step 4:</strong> Select how long particles stay in the water<br>
-                                                    <br>
-                                                    <strong>Step 5:</strong> Once selections are complete, move to the simulation tab<br>
-                                                         ")
-                          )
-                        ), 
-                        hr(), 
-                        fluidRow(
-                          column(width = 12,
-                                 h4("Contact Information"),
-                                 p("Dr. Peter Robins"),
-                                 HTML("<i class = 'fas fa-envelope'></i> <a href = 'p.robins@bangor.ac.uk'>p.robins@bangor.ac.uk</a>")
-                          )
-                        ), 
-                        hr(), 
-                        fluidRow(
-                          column(width = 12,
-                                 # style = "margin: 0px; padding: 0px; border: 0px",
-                                 h4("Overview"),
-                                 p(a("ECOSTRUCTURE", 
-                                     href = "http://http://www.ecostructureproject.eu/", 
-                                     target="_blank"), 
-                                   "will raise awareness of eco-engineering solutions to 
-                                                       the challenge of climate change. We aim to provide developers 
-                                                       and regulators with accessible tools and resources, based on 
-                                                       research in the fields of ecology, engineering and socioeconomics."),
-                                 br(),
-                                 h4("Disclaimer"),
-                                 p("Ecostructure brings together five leading universities 
-                                                     in Wales and Ireland to research and raise awareness of 
-                                                     eco-engineering solutions to the challenge of coastal 
-                                                     adaptation to climate change. Ecostructure aims to 
-                                                     promote the incorporation of secondary ecological 
-                                                     and societal benefits into coastal defence and 
-                                                     renewable energy structures, with benefits to the 
-                                                     environment, to coastal communities, and to the 
-                                                     blue and green sectors of the Irish and Welsh economies."),
-                                 hr(),
-                                 h4("Connect"),
-                                 HTML("<a href = 'https://twitter.com/ecostructure_'><i class = 'fa fa-twitter-square fa-3x'></i></a>"),
-                                 HTML("<a href = 'https://www.facebook.com/ecostructureproject'><i class = 'fa fa-facebook-square fa-3x'></i></a>"),
-                                 HTML("<a href = 'https://www.linkedin.com/company/64623160'><i class = 'fa fa-linkedin-square fa-3x'></i></a>"),
-                                 HTML("<a href = 'https://www.youtube.com/channel/UCCFH19O7-CjQxMjnzXdh4pg'><i class = 'fa fa-youtube-square fa-3x'></i></a>"),
-                                 hr(),
-                                 h4("Funding"),
-                                 img(src = "image001.png", 
-                                     width = "100%", 
-                                     height = "auto",
-                                     style = "margin-right: auto; margin-left: auto;")
-                          )
-                        )
-           ), 
+           build_side_panel(), 
            mainPanel(
              width = 9,
              fluidRow(
                leafletOutput("density_map", height = 850) 
              )
+           )
+         )
+         
+),
+# Resources and Documentation --------------------------------------------------------
+tabPanel("Resources", 
+         value = "tab4", 
+         fluid = TRUE, 
+         sidebarLayout(
+           build_side_panel(), 
+           mainPanel(
+             width = 9,
+             h2("Description"), 
+             p("This visualisation app is a prototype intended for early warning 
+               and rapid response to marine invasive species in the Irish Sea. 
+               The app has been developed within Ecostructure, an interdisciplinary 
+               project which aims to raise awareness of, and provide guidance to, 
+               developers and regulators on the potential for ecologically sensitive 
+               engineering (eco-engineering) solutions for coastal infrastructure. 
+               Ecostructure is a collaboration between five leading research-intensive 
+               universities in Wales and Ireland: Aberystwyth University (Project Lead), 
+               Bangor University, Swansea University, University College Cork and 
+               University College Dublin. The project is part-funded by the 
+               European Regional Development Fund (ERDF) through the Ireland-Wales 
+               Cooperation Programme 2014-2020."), 
+             br(), 
+             p("The app simulates the potential spread of larvae from coastal 
+               natural habitats and man-made structures. The larvae (‘particles’) 
+               simulated within this app are transported from coastal ‘spawning’ 
+               locations within the Irish Sea by simulated (modelled) ocean currents. 
+               These simulations are based on a sophisticated hydrodynamic model 
+               which predicts flows in three-dimensions, driven by the tide, 
+               wind and heat inputs. The model uses data from 2014 and encompasses 
+               the larval spawning season from April to October."), 
+             br(), 
+             p("The simulated ocean currents are coupled with a Particle Tracking 
+               Model which ‘releases’ virtual particles (representing larvae) 
+               from discrete locations at different times throughout the year. 
+               These particles are then dispersed through the Irish Sea waters 
+               according to the local simulated ocean currents. A range of 
+               release (spawning) periods can be chosen to incorporate changes 
+               in seasonal heat-driven flows. In addition, larvae particles 
+               can be simulated in two scenarios: i) positioned in surface waters, 
+               and ii) positioned in mid-waters. This represents two plausible 
+               larval behavioural patterns, with surface-only larvae submitted 
+               to tidal-, heat- and wind-driven currents, whereas larvae in 
+               mid-waters are submitted to tidal- and heat-driven currents. ")
            )
          )
          
