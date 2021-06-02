@@ -131,11 +131,14 @@ return(replicates_df)
 # dev_t0 <- data_prep('./data/dev/tiny_dev/','./data/downsampled_and_filtered_starting_sites.rds', 700)
 
 # spring
-spring <- data_prep('../../../../../media/noah/bangor_collab/bangor_spring_data/','./data/downsampled_and_filtered_starting_sites.rds', 6)
-write_csv(spring, './data/spring_downsampled_6hours.csv')
+
+spring <- data_prep(path = '/Volumes/bangor_collab/bangor_spring_data/',
+                    sites_path = './data/downsampled_and_filtered_starting_sites.rds', 
+                    temporal_res = 2)
+write_csv(spring, './data/spring_downsampled_2hours.csv')
 # summer
-summer <- data_prep('../../../../../media/noah/bangor_collab/bangor_summer_data/','./data/downsampled_and_filtered_starting_sites.rds', 6)
-write_csv(summer, './data/summer_downsampled_6hours.csv')
+summer <- data_prep('/Volumes/bangor_collab/bangor_summer_data/','./data/downsampled_and_filtered_starting_sites.rds', 2)
+write_csv(summer, './data/summer_downsampled_2hours.csv')
 # autumn
-autumn <- data_prep('../../../../../media/noah/bangor_collab/bangor_autumn_data/','./data/downsampled_and_filtered_starting_sites.rds', 6)
-write_csv(autumn, './data/autumn_downsampled_6hours.csv')
+autumn <- data_prep('/Volumes/bangor_collab/bangor_autumn_data//','./data/downsampled_and_filtered_starting_sites.rds', 2)
+write_csv(autumn, './data/autumn_downsampled_2hours.csv')
