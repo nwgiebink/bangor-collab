@@ -55,7 +55,8 @@ starting_sites_lite = starting_sites %>%
   select(x, y)
 
 # running function
-downsampled = buffer.f(starting_sites_lite, 0.08, 5000)
+downsampled = buffer.f(starting_sites_lite, 0.16, 5000)
+
 
 # checking
 plot(downsampled)
@@ -73,3 +74,8 @@ filtered_sites = starting_sites %>%
 
 # writing to rds
 write_rds(filtered_sites, "./data/downsampled_and_filtered_starting_sites.rds")
+
+# make csv of downsampled starting sites for reference
+starting_sites_down <- starting_sites %>% filter(site %in% filtered_sites)
+write_csv(starting_sites_down, './data/downsampled_and_filtered_starting_sites.csv')
+

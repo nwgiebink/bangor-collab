@@ -131,7 +131,6 @@ return(replicates_df)
 # dev_t0 <- data_prep('./data/dev/tiny_dev/','./data/downsampled_and_filtered_starting_sites.rds', 700)
 
 # spring
-
 spring <- data_prep(path = '/Volumes/bangor_collab/bangor_spring_data/',
                     sites_path = './data/downsampled_and_filtered_starting_sites.rds', 
                     temporal_res = 2)
