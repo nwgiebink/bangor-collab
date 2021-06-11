@@ -16,6 +16,7 @@ library(KernSmooth)
 library(raster)
 
 
+
 # Sourcing Scripts --------------------------------------------------------
 source("./scripts/make_selection_map.R")
 
@@ -23,6 +24,9 @@ source("./scripts/make_selection_map.R")
 shinyServer(function(input, output, session) {
 
 
+# Importing Distinct Sites ------------------------------------------------
+filtered_distinct_starting_sites = read_csv("./data/downsampled_and_filtered_starting_sites.csv")
+  
 # Map Panel to Make Location Selection ------------------------------------
 output$selection_map = renderLeaflet({
   make_selection_map()
@@ -216,8 +220,8 @@ output$density_map = renderLeaflet({
               title = "Kernel Density of Points") %>%
     addCircleMarkers(lng = ~lon, 
                lat = ~lat, 
-               radius = 5, 
-               color = "black"
+               radius = 3, 
+               color = "blue"
                )
 })
 
