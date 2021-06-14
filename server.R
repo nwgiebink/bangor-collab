@@ -86,7 +86,7 @@ reactive_data = reactiveValues()
          
          depth = if(input$depth == "Surface") {
            "surface"
-         } else if(input$depth == "Mid-water Depth") {
+         } else if(input$depth == "Mid-water") {
            "mwd"
          }
          
@@ -172,18 +172,50 @@ output$simulation_map = renderLeaflet({
        filter(hours_since_release == input$date_selector_input)
    }
  })
+ 
+ 
+ # Saving map to reactive values for download later
+ map = reactiveValues(sim_map = 0)
 
 # Updating Map as Simulation Progresses with leaflet Proxy
 observe({
   req(reactive_data$filtered_data_by_date)
-  leafletProxy("simulation_map", data = reactive_data$filtered_data_by_date) %>%
+    leafletProxy("simulation_map", data = reactive_data$filtered_data_by_date) %>%
     clearMarkers() %>%
     addCircleMarkers(lng = ~lon, 
                      lat = ~lat, 
                      radius = 1
-    )
+    ) %>%
+    addCircleMarkers(lng = subset(reactive_data$filtered_data, position == 1)$lon, 
+                     lat = subset(reactive_data$filtered_data, position == 1)$lat, 
+                     radius = 3, 
+                     color = "black", 
+                     opacity = 0.7
+                     )
   
 })
+
+
+# Selection Summary -------------------------------------------------------
+
+output$selection_summary = renderText({
+  
+  paste("You've chosen the<b>", input$depth, "</b>depth during<b>", input$season, 
+        "</b>where particles stay in the water column for<b>", input$window, "</b>days." )
+})
+
+
+# Download Sim Map --------------------------------------------------------
+
+# output$download_sim = downloadHandler(
+#   filename = "sim_map.jpeg",
+# 
+#   content = function(file) {
+#     mapview::mapshot(x = map$sim_map,
+#                      url = NULL,
+#                      file = file)
+#   }
+# )
 
 
 # Map Panel to View Density Maps --------------------------------------------
@@ -191,15 +223,18 @@ observe({
 # Kernel Density estimate Map
 output$density_map = renderLeaflet({
   
+  selection_window = input$settlement_window*24
+  
   # Generating input needed by bkde2d
   density_data = reactive_data$filtered_data %>%
     filter(lat != 0) %>%
-    filter(hours_since_release == max(hours_since_release)) %>%
-    select(lon, lat)
+    filter(hours_since_release >= selection_window) %>%
+    dplyr::select(lon, lat)
   
   ## Create kernel density output
   kde <- bkde2D(as.matrix(density_data),
-                bandwidth=c(.025, .038), gridsize = c(1000,1000))
+                #bandwidth=c(.025, .038), gridsize = c(1000,1000))
+                bandwidth=c(.025, .038), gridsize = c(200,200))
   # Create Raster from Kernel Density output
   KernelDensityRaster <- raster(list(x=kde$x1 ,y=kde$x2 ,z = kde$fhat))
   
@@ -207,7 +242,10 @@ output$density_map = renderLeaflet({
   KernelDensityRaster@data@values[which(KernelDensityRaster@data@values < 1)] <- NA
   
   #create pal function for coloring the raster
-  palRaster <- colorNumeric("Spectral", domain = KernelDensityRaster@data@values, na.color = "transparent")
+  palRaster <- colorNumeric("Spectral", 
+                            domain = KernelDensityRaster@data@values, 
+                            na.color = "transparent", 
+                            reverse = TRUE)
   
   # making map       
   leaflet(data = reactive_data$filtered_data %>% filter(position == 1)) %>%
@@ -221,12 +259,13 @@ output$density_map = renderLeaflet({
     addCircleMarkers(lng = ~lon, 
                lat = ~lat, 
                radius = 3, 
-               color = "blue"
+               color = "black"
                )
 })
 
 
 })
+
 
 
 
