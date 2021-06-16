@@ -132,12 +132,12 @@ return(replicates_df)
 
 # spring
 spring <- data_prep(path = '/Volumes/bangor_collab/bangor_spring_data/',
-                    sites_path = './data/downsampled_and_filtered_starting_sites.rds', 
+                    sites_path = './data/downsampled_and_filtered_starting_sites_updated.rds', 
                     temporal_res = 2)
 write_csv(spring, './data/spring_downsampled_2hours.csv')
 # summer
-summer <- data_prep('/Volumes/bangor_collab/bangor_summer_data/','./data/downsampled_and_filtered_starting_sites.rds', 2)
+summer <- data_prep('/Volumes/bangor_collab/bangor_summer_data/','./data/downsampled_and_filtered_starting_sites_updated.rds', 2)
 write_csv(summer, './data/summer_downsampled_2hours.csv')
 # autumn
-autumn <- data_prep('/Volumes/bangor_collab/bangor_autumn_data//','./data/downsampled_and_filtered_starting_sites.rds', 2)
+autumn <- data_prep('/Volumes/bangor_collab/bangor_autumn_data//','./data/downsampled_and_filtered_starting_sites_updated.rds', 2)
 write_csv(autumn, './data/autumn_downsampled_2hours.csv')

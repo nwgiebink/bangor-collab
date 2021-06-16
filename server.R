@@ -86,7 +86,7 @@ reactive_data = reactiveValues()
          
          depth = if(input$depth == "Surface") {
            "surface"
-         } else if(input$depth == "Mid-water Depth") {
+         } else if(input$depth == "Mid-water") {
            "mwd"
          }
          
@@ -139,6 +139,19 @@ reactive_data = reactiveValues()
                      step = 2
                      )
  })
+ 
+
+# Modal for tab-switching -------------------------------------------------
+ observeEvent(input$navbar,{
+   if(is.null(input$selection_map_marker_click) & input$navbar == "tab2" | is.null(input$selection_map_marker_click) & input$navbar == "tab3") {
+     showModal(modalDialog(
+       title = "You haven't selected a site",
+       "Please select a site before moving to the Simulation or Density Map Tab",
+       easyClose = TRUE,
+       footer = NULL
+     ))
+   }
+ })
 
 # Map Panel to View Simulation --------------------------------------------
 
@@ -159,7 +172,17 @@ output$simulation_map = renderLeaflet({
                  min(reactive_data$filtered_data$lat), 
                  max(reactive_data$filtered_data$lon), 
                  max(reactive_data$filtered_data$lat)
-                 )
+                 ) %>%
+    onRender(
+      "function(el, x) {
+            L.easyPrint({
+              sizeModes: ['Current', 'A4Landscape', 'A4Portrait'],
+              filename: 'sim_map',
+              exportOnly: true,
+              hideControlContainer: true
+            }).addTo(this);
+            }"
+    )
 })
  
  # Filter Data Based on Animation Map Selection -------------------------------------------------------------
@@ -172,18 +195,59 @@ output$simulation_map = renderLeaflet({
        filter(hours_since_release == input$date_selector_input)
    }
  })
+ 
+ 
+ # Saving map to reactive values for download later
+ map = reactiveValues(sim_map = 0)
 
 # Updating Map as Simulation Progresses with leaflet Proxy
 observe({
   req(reactive_data$filtered_data_by_date)
-  leafletProxy("simulation_map", data = reactive_data$filtered_data_by_date) %>%
+    leafletProxy("simulation_map", data = reactive_data$filtered_data_by_date) %>%
     clearMarkers() %>%
     addCircleMarkers(lng = ~lon, 
                      lat = ~lat, 
                      radius = 1
-    )
+    ) %>%
+    addCircleMarkers(lng = subset(reactive_data$filtered_data, position == 1)$lon, 
+                     lat = subset(reactive_data$filtered_data, position == 1)$lat, 
+                     radius = 3, 
+                     color = "black", 
+                     opacity = 0.7
+                     ) %>%
+      onRender(
+        "function(el, x) {
+            L.easyPrint({
+              sizeModes: ['Current', 'A4Landscape', 'A4Portrait'],
+              filename: 'sim_map',
+              exportOnly: true,
+              hideControlContainer: true
+            }).addTo(this);
+            }"
+      )
   
 })
+
+
+# Selection Summary -------------------------------------------------------
+
+output$selection_summary = renderText({
+  
+  paste("You've chosen the<b>", input$depth, "</b>depth during<b>", input$season, 
+        "</b>where particles stay in the water column for<b>", input$window, "</b>days." )
+})
+
+
+# Download Sim Map --------------------------------------------------------
+
+output$download_sim = downloadHandler(
+  filename = "sim_map.png",
+
+  content = function(file_to_download) {
+    mapview::mapshot(x = map$sim_map,
+                     file = file_to_download)
+  }
+)
 
 
 # Map Panel to View Density Maps --------------------------------------------
@@ -191,15 +255,20 @@ observe({
 # Kernel Density estimate Map
 output$density_map = renderLeaflet({
   
+  selection_window = input$settlement_window*24
+  cutoff = max(reactive_data$filtered_data$hours_since_release)
+  real_selection_window = cutoff - selection_window
+  
   # Generating input needed by bkde2d
   density_data = reactive_data$filtered_data %>%
     filter(lat != 0) %>%
-    filter(hours_since_release == max(hours_since_release)) %>%
-    select(lon, lat)
+    filter(hours_since_release >= real_selection_window) %>%
+    dplyr::select(lon, lat)
   
   ## Create kernel density output
   kde <- bkde2D(as.matrix(density_data),
-                bandwidth=c(.025, .038), gridsize = c(1000,1000))
+                #bandwidth=c(.025, .038), gridsize = c(1000,1000))
+                bandwidth=c(.025, .038), gridsize = c(200,200))
   # Create Raster from Kernel Density output
   KernelDensityRaster <- raster(list(x=kde$x1 ,y=kde$x2 ,z = kde$fhat))
   
@@ -207,7 +276,10 @@ output$density_map = renderLeaflet({
   KernelDensityRaster@data@values[which(KernelDensityRaster@data@values < 1)] <- NA
   
   #create pal function for coloring the raster
-  palRaster <- colorNumeric("Spectral", domain = KernelDensityRaster@data@values, na.color = "transparent")
+  palRaster <- colorNumeric("Spectral", 
+                            domain = KernelDensityRaster@data@values, 
+                            na.color = "transparent", 
+                            reverse = TRUE)
   
   # making map       
   leaflet(data = reactive_data$filtered_data %>% filter(position == 1)) %>%
@@ -221,12 +293,23 @@ output$density_map = renderLeaflet({
     addCircleMarkers(lng = ~lon, 
                lat = ~lat, 
                radius = 3, 
-               color = "blue"
-               )
+               color = "black"
+               ) %>%
+    onRender(
+      "function(el, x) {
+            L.easyPrint({
+              sizeModes: ['Current', 'A4Landscape', 'A4Portrait'],
+              filename: 'density_map',
+              exportOnly: true,
+              hideControlContainer: true
+            }).addTo(this);
+            }"
+    )
 })
 
 
 })
+
 
 
 

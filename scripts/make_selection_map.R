@@ -7,7 +7,7 @@
 library(tidyverse)
 library(leaflet)
 
-filtered_distinct_starting_sites = read_csv("./data/downsampled_and_filtered_starting_sites.csv")
+filtered_distinct_starting_sites = read_csv("./data/distinct_sites_for_selection_map.csv")
 
 make_selection_map = function(data = filtered_distinct_starting_sites) {
   # leaflet function to generate map
