@@ -139,6 +139,19 @@ reactive_data = reactiveValues()
                      step = 2
                      )
  })
+ 
+
+# Modal for tab-switching -------------------------------------------------
+ observeEvent(input$navbar,{
+   if(is.null(input$selection_map_marker_click) & input$navbar == "tab2" | is.null(input$selection_map_marker_click) & input$navbar == "tab3") {
+     showModal(modalDialog(
+       title = "You haven't selected a site",
+       "Please select a site before moving to the Simulation or Density Map Tab",
+       easyClose = TRUE,
+       footer = NULL
+     ))
+   }
+ })
 
 # Map Panel to View Simulation --------------------------------------------
 
@@ -159,7 +172,17 @@ output$simulation_map = renderLeaflet({
                  min(reactive_data$filtered_data$lat), 
                  max(reactive_data$filtered_data$lon), 
                  max(reactive_data$filtered_data$lat)
-                 )
+                 ) %>%
+    onRender(
+      "function(el, x) {
+            L.easyPrint({
+              sizeModes: ['Current', 'A4Landscape', 'A4Portrait'],
+              filename: 'sim_map',
+              exportOnly: true,
+              hideControlContainer: true
+            }).addTo(this);
+            }"
+    )
 })
  
  # Filter Data Based on Animation Map Selection -------------------------------------------------------------
@@ -191,7 +214,17 @@ observe({
                      radius = 3, 
                      color = "black", 
                      opacity = 0.7
-                     )
+                     ) %>%
+      onRender(
+        "function(el, x) {
+            L.easyPrint({
+              sizeModes: ['Current', 'A4Landscape', 'A4Portrait'],
+              filename: 'sim_map',
+              exportOnly: true,
+              hideControlContainer: true
+            }).addTo(this);
+            }"
+      )
   
 })
 
@@ -207,15 +240,14 @@ output$selection_summary = renderText({
 
 # Download Sim Map --------------------------------------------------------
 
-# output$download_sim = downloadHandler(
-#   filename = "sim_map.jpeg",
-# 
-#   content = function(file) {
-#     mapview::mapshot(x = map$sim_map,
-#                      url = NULL,
-#                      file = file)
-#   }
-# )
+output$download_sim = downloadHandler(
+  filename = "sim_map.png",
+
+  content = function(file_to_download) {
+    mapview::mapshot(x = map$sim_map,
+                     file = file_to_download)
+  }
+)
 
 
 # Map Panel to View Density Maps --------------------------------------------
@@ -224,11 +256,13 @@ output$selection_summary = renderText({
 output$density_map = renderLeaflet({
   
   selection_window = input$settlement_window*24
+  cutoff = max(reactive_data$filtered_data$hours_since_release)
+  real_selection_window = cutoff - selection_window
   
   # Generating input needed by bkde2d
   density_data = reactive_data$filtered_data %>%
     filter(lat != 0) %>%
-    filter(hours_since_release >= selection_window) %>%
+    filter(hours_since_release >= real_selection_window) %>%
     dplyr::select(lon, lat)
   
   ## Create kernel density output
@@ -260,7 +294,17 @@ output$density_map = renderLeaflet({
                lat = ~lat, 
                radius = 3, 
                color = "black"
-               )
+               ) %>%
+    onRender(
+      "function(el, x) {
+            L.easyPrint({
+              sizeModes: ['Current', 'A4Landscape', 'A4Portrait'],
+              filename: 'density_map',
+              exportOnly: true,
+              hideControlContainer: true
+            }).addTo(this);
+            }"
+    )
 })
 
 

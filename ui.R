@@ -20,12 +20,19 @@ library(shinycssloaders)
 # Sourcing Sidepanel Function----------------------------------------------
 source("./scripts/build_side_panel.R")
 
+
+# Setting up tags for js script  ------------------------------------------
+
+jsfile =  "https://rawgit.com/rowanwins/leaflet-easyPrint/gh-pages/dist/bundle.js" 
+
+
 # Shiny UI ---------------------------------------------------------------
 # Define UI for application that draws a histogram
 shinyUI(
     fluidPage(
       # Linking to custom css sheet
       tags$head(
+        tags$script(src = jsfile),
         tags$link(rel = "stylesheet", type = "text/css", href = "styling.css"),
         tags$style(".fa-facebook-square {color:#3B5998}",
                    ".fa-twitter-square {color:#55ACEE}",
@@ -95,7 +102,7 @@ shinyUI(
                               column(width = 4, 
                                      box(width = 12,
                                          title = "App developed by:",
-                                         p("Peter Robins, Jonathan Demmer, Alice Goward Brown, Stuary Jenkins and Sophie Ward"
+                                         p("Peter Robins, Jonathan Demmer, Alice Goward Brown, Stuart Jenkins and Sophie Ward"
                                            ), 
                                          p("School of Ocean Sciences, Bangor University"), 
                                          img(src = "bangor_logo.jpg", 
@@ -182,12 +189,12 @@ tabPanel("Simulation",
                        uiOutput("date_selector"),
                        box(title = "Selection Summary",
                        htmlOutput("selection_summary")
+                       ),
+                       downloadButton("download_sim",
+                                      "Download Snapshot",
+                                      style = "height: 40px;"
+
                        )
-                       # downloadButton("download_sim", 
-                       #                "Download Snapshot", 
-                       #                style = "height: 40px;"
-                       #                
-                       # )
                ),
                fluidRow(
                   leafletOutput("simulation_map", height = 850)
