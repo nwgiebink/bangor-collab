@@ -69,11 +69,12 @@ shinyUI(
                             ),
                             fluidRow(
                               column(width = 12,
-                              h2("Larval Dispersal in the Irish Sea", 
+                              h1("Larval Dispersal in the Irish Sea", 
                                  style = "text-align: center; display: block;"
                                  )
                               ),
                             ),
+                            br(),
                             fluidRow(
                               column(width = 12,
                               p("This app allows visualisation of  the spread of marine 
@@ -84,7 +85,7 @@ shinyUI(
                               at coastal sites will potentially spread through natural means.  
                               This app may allow early warning and a rapid response through 
                               providing understanding of natural spread.
-                              "), 
+                              ", style = "font-size: 18px;"), 
                               br(), 
                               p("The app has been developed within Ecostructure, an 
                               interdisciplinary project which aims to raise awareness of, 
@@ -95,36 +96,46 @@ shinyUI(
                               Aberystwyth University (Project Lead), Bangor University, Swansea University, 
                               University College Cork and University College Dublin. Further information 
                               on the app design is available under  the ‘About’ tab.
-                              ")
+                              ", style = "font-size: 18px;")
                               )
                             ), 
                             fluidRow(
                               column(width = 4, 
                                      box(width = 12,
+                                         style = "margin: 0px;",
                                          title = "App developed by:",
                                          p("Peter Robins, Jonathan Demmer, Alice Goward Brown, Stuart Jenkins and Sophie Ward"
                                            ), 
                                          p("School of Ocean Sciences, Bangor University"), 
                                          img(src = "bangor_logo.jpg", 
-                                             width = "25%", 
-                                             height = "auto",
-                                             style = "margin-right: auto; margin-left: auto;"
+                                             width = "40%", 
+                                             height = "auto", 
+                                             style="display: block; margin-left: auto; margin-right: auto;" 
                                              )
                                      )
                                      ), 
                               column(width = 4,
                                      box(width = 12, 
+                                         style = "margin: 0px;",
                                          title = "Code, UI/UX and data wrangling by:",
                                          p("Keaton Wilson and Noah Giebink")
                                      )
                                      ), 
                               column(width = 4, 
+                                     style = "margin: 0px;",
                                      img(src = "image001.png", 
-                                         width = "100%", 
+                                         width = "115%", 
                                          height = "auto",
-                                         style = "margin-right: auto; margin-left: auto;"
+                                         style="display: block; margin-left: auto; margin-right: auto;" 
                                          )
                                      )
+                            ), 
+                            br(),
+                            fluidRow(
+                              img(src = "density_map.png", 
+                                  width = "100%", 
+                                  height = "auto", 
+                                  style = "margin-right: auto; margin-left: auto;")
                             )
                             ),                   
 # Front Mapping Panel -----------------------------------------------------
@@ -189,11 +200,6 @@ tabPanel("Simulation",
                        uiOutput("date_selector"),
                        box(title = "Selection Summary",
                        htmlOutput("selection_summary")
-                       ),
-                       downloadButton("download_sim",
-                                      "Download Snapshot",
-                                      style = "height: 40px;"
-
                        )
                ),
                fluidRow(

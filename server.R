@@ -103,13 +103,50 @@ reactive_data = reactiveValues()
          # site filter - and filtering out spurious lat 0º Data
          reactive_data$filtered_data = all_data %>%
            filter(site == input$selection_map_marker_click$id) %>%
-           filter(lat != 0) %>%
-           filter(position <= end_position) %>%
-           mutate(hours_since_release = position - 1)
-          
+           filter(lat != 0)
+         
+         # Fixing position/windowing issues
+         # position 1 coords
+         start_lat = reactive_data$filtered_data %>%
+           filter(position == 1) %>%
+           distinct(lat)
+         
+         start_lon = reactive_data$filtered_data %>%
+           filter(position == 1) %>%
+           distinct(lon)
+         
+         
+         # Binding start lon and lat onto df
+         # adding a column that shows where it first moves out of start location
+         reactive_data$filtered_data = reactive_data$filtered_data %>%
+           mutate(start_lat = start_lat, 
+                  start_lon = start_lon
+           ) %>%
+           mutate(diff_from_start = case_when(lat != start_lat | lon != start_lon ~ TRUE, 
+                                              TRUE ~ FALSE
+           ))
+         
+         last_position_one_df = reactive_data$filtered_data %>%
+           filter(diff_from_start == FALSE) %>%
+           group_by(replicate) %>%
+           filter(position == max(position)) %>%
+           dplyr::select(replicate, last_position_one = position)
+         
+         # binding
+         reactive_data$filtered_data = reactive_data$filtered_data %>%
+           left_join(last_position_one_df) %>%
+           mutate(new_position = case_when(diff_from_start == FALSE ~ 1, 
+                                           position > last_position_one ~ position-last_position_one + 1
+           ))
+         
+         # final wrangling
+         reactive_data$filtered_data = reactive_data$filtered_data %>%
+           filter(new_position <= end_position) %>%
+           mutate(hours_since_release = new_position - 1)
+         
          remove_modal_spinner()
          
-         print(reactive_data$filtered_data)
+         print(reactive_data$filtered_data, n = 200)
        }
     
 
@@ -143,10 +180,10 @@ reactive_data = reactiveValues()
 
 # Modal for tab-switching -------------------------------------------------
  observeEvent(input$navbar,{
-   if(is.null(input$selection_map_marker_click) & input$navbar == "tab2" | is.null(input$selection_map_marker_click) & input$navbar == "tab3") {
+   if(is.null(reactive_data$filtered_data) & input$navbar == "tab2" | is.null(input$selection_map_marker_click) & input$navbar == "tab3") {
      showModal(modalDialog(
-       title = "You haven't selected a site",
-       "Please select a site before moving to the Simulation or Density Map Tab",
+       title = "You haven't selected a site or other simulation parameters",
+       "Please set parameters before moving to the Simulation or Density Map Tab",
        easyClose = TRUE,
        footer = NULL
      ))
@@ -255,9 +292,11 @@ output$download_sim = downloadHandler(
 # Kernel Density estimate Map
 output$density_map = renderLeaflet({
   
-  selection_window = input$settlement_window*24
-  cutoff = max(reactive_data$filtered_data$hours_since_release)
+  selection_window = input$settlement_window*24 # number of hours to step back and include in density map
+  cutoff = max(reactive_data$filtered_data$hours_since_release) #ending cumulative hour in the data set
   real_selection_window = cutoff - selection_window
+  
+  print(paste("Selection set to", real_selection_window, "to", cutoff, "hours."))
   
   # Generating input needed by bkde2d
   density_data = reactive_data$filtered_data %>%
@@ -289,7 +328,8 @@ output$density_map = renderLeaflet({
                    opacity = .8) %>%
     addLegend(pal = palRaster, 
               values = KernelDensityRaster@data@values, 
-              title = "Kernel Density of Points") %>%
+              title = HTML("<p>Probability Density<br> 
+                           (red is high, blue is low)</p>")) %>%
     addCircleMarkers(lng = ~lon, 
                lat = ~lat, 
                radius = 3, 
