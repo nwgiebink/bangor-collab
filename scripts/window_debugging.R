@@ -26,6 +26,9 @@ test_data = read_csv("./data/autumn_mwd_downsampled.csv")
 test_data_one_site = test_data %>% 
   filter(site == 1939)
 
+test_data_one_site %>%
+  filter(replicate == "October_01_2014_MWD_lat_03")
+
 # position 1 coords
 start_lat = test_data_one_site %>%
   filter(position == 1) %>%
@@ -112,4 +115,5 @@ testing_full_all_reps %>%
   group_by(replicate, site) %>%
   mutate(new_position = case_when(diff_from_start == FALSE ~ 1, 
                                   position > last_position_one ~ position-last_position_one + 1
-  ))
+  )) %>%
+  filter(replicate == "October_01_2014_MWD_lat_03")
