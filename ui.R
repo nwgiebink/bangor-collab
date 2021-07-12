@@ -104,7 +104,7 @@ shinyUI(
                                      box(width = 12,
                                          style = "margin: 0px;",
                                          title = "App developed by:",
-                                         p("Peter Robins, Jonathan Demmer, Alice Goward Brown, Stuart Jenkins and Sophie Ward"
+                                         p("Peter Robins, Jonathan Demmer, Simon Neill, Alice Goward Brown, Stuart Jenkins and Sophie Ward"
                                            ), 
                                          p("School of Ocean Sciences, Bangor University"), 
                                          img(src = "bangor_logo.jpg", 
