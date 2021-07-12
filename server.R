@@ -304,15 +304,19 @@ output$density_map = renderLeaflet({
     filter(hours_since_release >= real_selection_window) %>%
     dplyr::select(lon, lat)
   
+  # number of points
+  num_points = nrow(density_data)
+  print(num_points)
+  
   ## Create kernel density output
   kde <- bkde2D(as.matrix(density_data),
                 #bandwidth=c(.025, .038), gridsize = c(1000,1000))
-                bandwidth=c(.025, .038), gridsize = c(200,200))
+                bandwidth=c(.038, .038), gridsize = c(150,150))
   # Create Raster from Kernel Density output
-  KernelDensityRaster <- raster(list(x=kde$x1 ,y=kde$x2 ,z = kde$fhat))
+  KernelDensityRaster <- raster(list(x=kde$x1, y=kde$x2, z = kde$fhat/num_points))
   
   #set low density cells as NA so we can make them transparent with the colorNumeric function
-  KernelDensityRaster@data@values[which(KernelDensityRaster@data@values < 1)] <- NA
+  KernelDensityRaster@data@values[which(KernelDensityRaster@data@values < 0.00001)] <- NA
   
   #create pal function for coloring the raster
   palRaster <- colorNumeric("Spectral", 
@@ -325,11 +329,12 @@ output$density_map = renderLeaflet({
     addTiles() %>%
     addRasterImage(KernelDensityRaster, 
                    colors = palRaster, 
-                   opacity = .8) %>%
+                   opacity = .7) %>%
     addLegend(pal = palRaster, 
               values = KernelDensityRaster@data@values, 
-              title = HTML("<p>Probability Density<br> 
-                           (red is high, blue is low)</p>")) %>%
+              title = HTML("<p>Probability Density (%)</p>"), 
+              labFormat = labelFormat(digits = 4, transform = function(x) 100*x)
+              ) %>%
     addCircleMarkers(lng = ~lon, 
                lat = ~lat, 
                radius = 3, 
