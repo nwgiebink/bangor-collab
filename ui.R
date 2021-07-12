@@ -222,8 +222,9 @@ tabPanel("Density Maps",
                            "Choose a settlement window (days):",
                            min = 1, 
                            max = 10, 
-                           value = 5
-                           )
+                           value = 5),
+               box(title = "Selection Summary",
+                   htmlOutput("selection_summary_density"))
              ),
              fluidRow(
                leafletOutput("density_map", height = 850) 

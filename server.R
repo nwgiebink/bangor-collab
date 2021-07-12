@@ -145,6 +145,11 @@ reactive_data = reactiveValues()
            mutate(hours_since_release = new_position - 1)
          
          remove_modal_spinner()
+         showModal(modalDialog(
+           title = "Loading Complete. View output in the simulation and density map tabs.",
+           easyClose = TRUE,
+           footer = NULL
+         ))
          
          print(reactive_data$filtered_data, n = 200)
        }
@@ -273,8 +278,11 @@ output$selection_summary = renderText({
   paste("You've chosen the<b>", input$depth, "</b>depth during<b>", input$season, 
         "</b>where particles stay in the water column for<b>", input$window, "</b>days." )
 })
-
-
+output$selection_summary_density = renderText({
+  
+  paste("You've chosen the<b>", input$depth, "</b>depth during<b>", input$season, 
+        "</b>where particles stay in the water column for<b>", input$window, "</b>days." )
+})
 # Download Sim Map --------------------------------------------------------
 
 output$download_sim = downloadHandler(
